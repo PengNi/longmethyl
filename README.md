@@ -1,19 +1,16 @@
 # longmethyl
-A demo nextflow pipeline
-
-
-## Introduction
-demo nextflow pipeline of methylation detection using long reads
+A demo nextflow pipeline of methylation detection using long reads
 
 <p>&nbsp;&nbsp;</p>
 
 ## Installation
 
-(1) Install conda if neeeded from [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
+(1) Install conda from [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html) if neeeded.
 
 
-(2) Create an environment containing nextflow/install nextflow
+(2) Install nextflow
 
+Create an environment containing nextflow/install nextflow:
 ```sh
 # create a new environment
 conda create -n nextflow -c conda-forge -c bioconda nextflow
@@ -21,13 +18,13 @@ conda create -n nextflow -c conda-forge -c bioconda nextflow
 conda install -c conda-forge -c bioconda nextflow
 ```
 
-(3) Download longmethyl from github
+(3) Download longmethyl from github.
 
 ```sh
 git clone https://github.com/PengNi/longmethyl.git
 ```
 
-(4) [optional] Install graphviz
+(4) [optional] Install graphviz.
 
 ```sh
 sudo apt install graphviz
@@ -39,18 +36,29 @@ sudo yum install graphviz
 
 ## Usage
 
-### Option 1. Run with conda
+### Option 1. Run with docker
 
-(1) Install conda environment (once for all)
+
+<p>&nbsp;</p>
+
+### Option 2. Run with singularity
+
+
+
+<p>&nbsp;&nbsp;</p>
+
+### Option 3. Run with conda
+
+(1) Install conda environment (once for all).
 
 ```sh
 conda env create -f longmethyl/environment.yml
 ```
 
-(2) Install Guppy, since Guppy is not open-sourced, from [ONT community](https://nanoporetech.com/community) (once for all)
+(2) Install Guppy, since Guppy is not open-sourced, from [ONT community](https://nanoporetech.com/community) (once for all).
 
 
-(3) Run longmethyl in an environment containing nextflow
+(3) Run longmethyl in an environment containing nextflow.
 
 ```sh
 ## demo
@@ -66,20 +74,12 @@ nextflow run ~/tools/longmethyl -profile conda --conda_name /home/nipeng/tools/m
 <p>&nbsp;</p>
 
 
-### Option 2. Run with docker
-
-
-<p>&nbsp;</p>
-
-### Option 3. Run with singularity
-
-
-
-<p>&nbsp;&nbsp;</p>
-
 ## Acknowledgements
   - Some code were taken from [nanome](https://github.com/TheJacksonLaboratory/nanome) or [nf-core](https://github.com/nf-core).
 
+
+
+For nextflow developers: [nextflow_develop.md](docs/nextflow_develop.md)
 
 
 ## TODO
