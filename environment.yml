@@ -1,0 +1,21 @@
+name: longmethyl
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - python>=3.6 # need 3.6 for some software
+  - pip
+  - scipy
+  - numpy
+  - pandas
+  - minimap2>=2.23
+  - parallel=20170422
+  - samtools>=1.12
+  - statsmodels>=0.12.2
+  - h5py=2.8
+  - scikit-learn
+  - ont-tombo=1.5.1
+  - tensorflow==1.13.1
+  - tensorflow-gpu==1.13.1
+  - pip:
+    - deepsignal==0.1.10
