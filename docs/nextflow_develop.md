@@ -70,8 +70,6 @@ DeepSignal步骤：
 
 ### 4. 测试
 
-详见[README.md](../README.md)。
-
 #### (1) 安装nextflow
 #### (2) 下载longmethyl流程源码
 #### (3) 准备数据，运行程序
@@ -80,3 +78,4 @@ deepsignal流程需准备：fast5 files, genome fasta, model.ckpt
 
 # ![longmethyl-test](images/longmethyl-test.png)
 
+详见[README.md](../README.md)。
