@@ -1,12 +1,13 @@
-## longmethyl
-A demo 
+# longmethyl
+A demo nextflow pipeline
 
 
-### Introduction
+## Introduction
 demo nextflow pipeline of methylation detection using long reads
 
+<p>&nbsp;&nbsp;</p>
 
-### Installation
+## Installation
 
 (1) Install conda if neeeded from [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
 
@@ -34,10 +35,11 @@ sudo apt install graphviz
 sudo yum install graphviz
 ```
 
+<p>&nbsp;&nbsp;</p>
 
-### Usage
+## Usage
 
-#### Option 1. Run with conda
+### Option 1. Run with conda
 
 (1) Install conda environment (once for all)
 
@@ -61,22 +63,26 @@ nextflow run ~/tools/longmethyl -profile conda --conda_name /home/nipeng/tools/m
     --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
 ```
 
-
-#### Option 2. Run with docker
-
+<p>&nbsp;</p>
 
 
-#### Option 3. Run with singularity
+### Option 2. Run with docker
+
+
+<p>&nbsp;</p>
+
+### Option 3. Run with singularity
 
 
 
+<p>&nbsp;&nbsp;</p>
 
-### Acknowledgements
+## Acknowledgements
   - Some code were taken from [nanome](https://github.com/TheJacksonLaboratory/nanome) or [nf-core](https://github.com/nf-core).
 
 
 
-### TODO
+## TODO
 - add summmary
 - test case with no basecall/resquiggle steps
 - dockerfile
