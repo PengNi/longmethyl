@@ -28,22 +28,13 @@ DeepSignal步骤：
 
 # ![deepsignal-pypi](images/deepsignal-pypi.png)
 
-  * __r-cran/Bioconductor__ (for R packages) 
+  * __r-cran/Bioconductor__ (R packages) 
 
 <p>&nbsp;</p>
 
 ### 3. nextflow流程开发
 
 #### (1) 环境依赖配置
-
-  - docker（推荐）
-
-利用docker配置依赖和自安装包，编写Dockerfile。
-
-示例：
-# ![longmethyl-dockerfile](images/longmethyl-dockerfile.png)
-
-参考：[longmethyl/Dockerfile](../Dockerfile)
 
   - conda
 
@@ -53,6 +44,15 @@ DeepSignal步骤：
 # ![longmethyl-environment](images/longmethyl-environment.png)
 
 参考：[longmethyl/environment.yml](../environment.yml)
+
+  - docker（推荐）
+
+利用docker配置依赖和自安装包，编写Dockerfile。
+
+示例：
+# ![longmethyl-dockerfile](images/longmethyl-dockerfile.png)
+
+参考：[longmethyl/Dockerfile](../Dockerfile)
 
 #### (2) 流程开发，编写nextflow语句
 
