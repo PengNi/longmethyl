@@ -43,13 +43,13 @@ def helpMessage() {
 
     Tools specific options:
       --guppyDir        Guppy installation local directory, used only for conda environment
-      --GUPPY_BASECALL_MODEL    Guppy basecalling model, default is 'dna_r9.4.1_450bps_hac.cfg'
+      --GUPPY_BASECALL_MODEL    Guppy basecalling model, default is 'dna_r9.4.1_450bps_hac_prom.cfg'
       --deepsignalDir   DeepSignal model dir, default will get online
       --tomboResquiggleOptions  Tombo resquiggle options for super long/damaged sequencing, set to '--signal-length-range 0 500000  --sequence-length-range 0 50000'
 
     Running environment options:
-      --docker_name     Docker name used for pipeline, default is 'liuyangzzu/nanome:latest'
-      --singularity_name    Singularity name used for pipeline, default is 'docker://liuyangzzu/nanome:latest'
+      --docker_name     Docker name used for pipeline, default is '/:latest'
+      --singularity_name    Singularity name used for pipeline, default is 'docker:///:latest'
       --singularity_cache   Singularity cache dir, default is 'local_singularity_cache'
       --conda_name      Conda name used for pipeline, default is 'nanome'
       --conda_base_dir  Conda base directory, default is '/opt/conda'
@@ -59,8 +59,8 @@ def helpMessage() {
       Use this parameter to choose a predefined configuration profile. Profiles can give configuration presets for different compute environments.
 
       test      A bundle of input params for ecoli test
-      docker    A generic configuration profile to be used with Docker, pulls software from Docker Hub: liuyangzzu/nanome:latest
-      singularity   A generic configuration profile to be used with Singularity, pulls software from: docker://liuyangzzu/nanome:latest
+      docker    A generic configuration profile to be used with Docker, pulls software from Docker Hub: /:latest
+      singularity   A generic configuration profile to be used with Singularity, pulls software from: docker:///:latest
       conda     Please only use conda as a last resort i.e. when it's not possible to run the pipeline with Docker, Singularity. Check our GitHub for how to install local conda environment
 
     """.stripIndent()
