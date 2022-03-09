@@ -10,8 +10,6 @@
 
 ### 2. 开发流程需由工具开发相关人员提供：
 
-<p>&nbsp;</p>
-
 #### (1) 每个工具步骤的输入输出，参数详解
 
 DeepSignal步骤：
@@ -20,8 +18,6 @@ DeepSignal步骤：
 
 # ![deepsignal-quickstart](images/deepsignal-quickstart.png)
 参考：[https://github.com/bioinfomaticsCSU/deepsignal#quick-start](https://github.com/bioinfomaticsCSU/deepsignal#quick-start)
-
-<p>&nbsp;</p>
 
 #### (2) 源码
   * __github__
@@ -38,13 +34,10 @@ DeepSignal步骤：
 
 ### 3. nextflow流程开发
 
-<p>&nbsp;</p>
-
 #### (1) 环境依赖配置
 
-<p>&nbsp;</p>
+  - docker（推荐）
 
-##### docker（推荐）
 利用docker配置依赖和自安装包，编写Dockerfile。
 
 示例：
@@ -52,10 +45,8 @@ DeepSignal步骤：
 
 参考：[longmethyl/Dockerfile](../Dockerfile)
 
-<p>&nbsp;</p>
+  - conda
 
-
-##### conda
 用environment.yml管理依赖。
 
 示例：
@@ -63,24 +54,29 @@ DeepSignal步骤：
 
 参考：[longmethyl/environment.yml](../environment.yml)
 
-<p>&nbsp;</p>
-
-
 #### (2) 流程开发，编写nextflow语句
+
+从[main.nf](../main.nf)开始编写nextflow流程，配置参数在[nextflow.config](../nextflow.config).
+
+  - process举例：
+
+# ![nextflow-process](images/nextflow-process.png)
+
+  - workflow举例：
+
+# ![nextflow-workflow](images/nextflow-workflow.png)
 
 <p>&nbsp;</p>
 
 ### 4. 测试
 
+详见[README.md](../README.md)。
 
+#####（1）安装nextflow
+#####（2）下载longmethyl流程源码
+#####（3）准备数据，运行程序
 
+deepsignal流程需准备：fast5 files, genome fasta, model.ckpt
 
-
-
-
-
-
-
-
-
+# ![longmethyl-test](images/longmethyl-test.png)
 

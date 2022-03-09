@@ -5,10 +5,10 @@ A demo nextflow pipeline of methylation detection using long reads
 
 ## Installation
 
-(1) Install conda from [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html) if neeeded.
+  - (1) Install conda from [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html) if neeeded.
 
 
-(2) Install nextflow
+  - (2) Install nextflow.
 
 Create an environment containing nextflow/install nextflow:
 ```sh
@@ -18,13 +18,13 @@ conda create -n nextflow -c conda-forge -c bioconda nextflow
 conda install -c conda-forge -c bioconda nextflow
 ```
 
-(3) Download longmethyl from github.
+  - (3) Download longmethyl from github.
 
 ```sh
 git clone https://github.com/PengNi/longmethyl.git
 ```
 
-(4) [optional] Install graphviz.
+  - (4) [optional] Install graphviz.
 
 ```sh
 sudo apt install graphviz
@@ -49,16 +49,16 @@ sudo yum install graphviz
 
 ### Option 3. Run with conda
 
-(1) Install conda environment (once for all).
+  - (1) Install conda environment (once for all).
 
 ```sh
 conda env create -f longmethyl/environment.yml
 ```
 
-(2) Install Guppy, since Guppy is not open-sourced, from [ONT community](https://nanoporetech.com/community) (once for all).
+  - (2) Install Guppy, since Guppy is not open-sourced, from [ONT community](https://nanoporetech.com/community) (once for all).
 
 
-(3) Run longmethyl in an environment containing nextflow.
+  - (3) Run longmethyl in an environment containing nextflow.
 
 ```sh
 ## demo
