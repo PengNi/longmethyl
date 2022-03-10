@@ -38,8 +38,9 @@ ENV PATH /opt/conda/bin:$PATH
 COPY environment.yml /
 RUN conda env create --name ${DNAME} --file=environment.yml && conda clean -a
 
-# Make RUN commands use the new environment:
-SHELL ["conda", "run", "-n", ${DNAME}, "/bin/bash", "-c"]
+# Make RUN commands use the new environment
+# naem need to be the same with the above ${DNAME}
+SHELL ["conda", "run", "-n", "longmethyl", "/bin/bash", "-c"]
 
 # Install latest version for megalodon, even conflicts with fast5mod, they can work
 # RUN pip install megalodon==${MEGALODON_VERSION} &&\

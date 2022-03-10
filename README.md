@@ -1,5 +1,6 @@
 # longmethyl
-A demo nextflow pipeline of methylation detection using long reads
+
+__Learning Nextflow__ - A demo nextflow pipeline of methylation detection using long reads
 
 <p>&nbsp;&nbsp;</p>
 
@@ -12,8 +13,9 @@ A demo nextflow pipeline of methylation detection using long reads
 
 Create an environment containing nextflow/install nextflow:
 ```sh
-# create a new environment
+# create a new environment and install nextflow in it
 conda create -n nextflow -c conda-forge -c bioconda nextflow
+
 # or install nextflow in an existing environment
 conda install -c conda-forge -c bioconda nextflow
 ```
@@ -38,18 +40,87 @@ sudo yum install graphviz
 
 ### Option 1. Run with docker
 
+  - (1) Pull docker image (once for all).
+
+It is better to pull docker image before running pipeline the first time, cause this may be time-consuming and there may be network issues. However, this step is not necessary, the image will be pulled automatically when running the pipeline the first time.
+
+```sh
+docker pull nipengcsu/longmethyl:0.1
+```
+
+  - (2) Run longmethyl using `-profile docker`.
+
+```sh
+# activate nextflow environment
+conda activate nextflow
+
+# run longmethyl
+nextflow run ~/tools/longmethyl -profile docker \
+    --genome GCF_000146045.2_R64_genomic.fna \
+    --input fast5s.al.demo/ \
+    --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
+```
 
 <p>&nbsp;</p>
 
 ### Option 2. Run with singularity
 
+If it is the first time you run with singularity (e.g. using `-profile singularity`), the following cmd will cache the dafault singularity image (`--singularity_name`) to the `--singularity_cache` directory (default: `local_singularity_cache`) first. There will be a `.img` file in the `--singularity_cache` directory.
+
+```sh
+# activate nextflow environment
+conda activate nextflow
+
+# run longmethyl, this cmd will cache a singularity image before processing the data
+nextflow run ~/tools/longmethyl -profile singularity \
+    --genome GCF_000146045.2_R64_genomic.fna \
+    --input fast5s.al.demo/ \
+    --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
+```
+
+The downloaded `.img` file can be used then, without downloaded again:
+
+```sh
+# this time nextflow will not download the singularity image again, it has already
+# been in the --singularity_cache directory.
+nextflow run ~/tools/longmethyl -profile singularity \
+    --genome GCF_000146045.2_R64_genomic.fna \
+    --input fast5s.al.demo/ \
+    --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
+# or
+nextflow run ~/tools/longmethyl -profile singularity \
+    --singularity_cache local_singularity_cache \
+    --genome GCF_000146045.2_R64_genomic.fna \
+    --input fast5s.al.demo/ \
+    --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
+# or
+nextflow run ~/tools/longmethyl -profile singularity \
+    --singularity_name local_singularity_cache/nipengcsu-longmethyl-0.1.img \
+    --genome GCF_000146045.2_R64_genomic.fna \
+    --input fast5s.al.demo/ \
+    --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
+```
+
+The singularity image can be also pulled before running the cmd. The pulled `.sif` file is only needed to be downloaded once.
+
+```sh
+# pull singularity image (once for all). There will be a .sif file. 
+singularity pull docker://nipengcsu/longmethyl:0.1
+
+# run longmethyl,
+nextflow run ~/tools/longmethyl -profile singularity \
+    --singularity_name longmethyl_0.1.sif \
+    --genome GCF_000146045.2_R64_genomic.fna \
+    --input fast5s.al.demo/ \
+    --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
+```
 
 
 <p>&nbsp;&nbsp;</p>
 
 ### Option 3. Run with conda
 
-  - (1) Install conda environment (once for all).
+  - (1) Install the conda environment named longmethyl (once for all).
 
 ```sh
 conda env create -f longmethyl/environment.yml
@@ -58,12 +129,12 @@ conda env create -f longmethyl/environment.yml
   - (2) Install Guppy, since Guppy is not open-sourced, from [ONT community](https://nanoporetech.com/community) (once for all).
 
 
-  - (3) Run longmethyl in an environment containing nextflow.
+  - (3) Run longmethyl using `-profile conda` and the longmethyl environment.
 
 ```sh
-## demo
 # activate nextflow environment
 conda activate nextflow
+
 # run longmethyl
 nextflow run ~/tools/longmethyl -profile conda --conda_name /home/nipeng/tools/miniconda3/envs/longmethyl \
     --genome GCF_000146045.2_R64_genomic.fna \
@@ -75,7 +146,7 @@ nextflow run ~/tools/longmethyl -profile conda --conda_name /home/nipeng/tools/m
 
 
 ## Acknowledgements
-  - Some code were taken from [nanome](https://github.com/TheJacksonLaboratory/nanome) or [nf-core](https://github.com/nf-core).
+  - Some code were taken from [nanome](https://github.com/TheJacksonLaboratory/nanome) and [nf-core](https://github.com/nf-core).
 
 
 <p>&nbsp;</p>
@@ -87,7 +158,9 @@ For nextflow developers: [nextflow_develop.md](docs/nextflow_develop.md)
 ## TODO
 - add summmary
 - test case with no basecall/resquiggle steps
-- dockerfile
+- ~~dockerfile~~
 - cpu settings
 - clean work dir
+- test with gpu
+- how to set a default deepsignal model
 

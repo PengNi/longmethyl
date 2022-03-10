@@ -164,8 +164,8 @@ process EnvCheck {
     tag "envcheck"
     errorStrategy 'terminate'
 
-    publishDir "${params.outdir}/${params.dsname}-ds",
-        mode: "copy", pattern: "tools_version_table.tsv", overwrite: true
+    // publishDir "${params.outdir}/${params.dsname}-ds",
+    //    mode: "copy", pattern: "tools_version_table.tsv", overwrite: true
 
     input:
     path utils
@@ -180,9 +180,6 @@ process EnvCheck {
     """
     date; hostname; pwd
     echo "CUDA_VISIBLE_DEVICES=\${CUDA_VISIBLE_DEVICES:-}"
-
-    ## Validate nanome container/environment is correct
-    # bash utils/validate_nanome_container.sh  tools_version_table.tsv
 
     ## Untar and prepare deepsignal model
     if [ ${params.runDeepSignal} == true ]; then
