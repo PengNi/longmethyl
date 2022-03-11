@@ -2,8 +2,6 @@
 
 __Learning Nextflow__ - A demo nextflow pipeline of methylation detection using long reads
 
-<p>&nbsp;&nbsp;</p>
-
 ## Installation
 
   - (1) Install conda from [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html) if neeeded.
@@ -34,8 +32,6 @@ sudo apt install graphviz
 sudo yum install graphviz
 ```
 
-<p>&nbsp;&nbsp;</p>
-
 ## Usage
 
 ### Option 1. Run with docker
@@ -60,8 +56,6 @@ nextflow run ~/tools/longmethyl -profile docker \
     --input fast5s.al.demo/ \
     --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
 ```
-
-<p>&nbsp;</p>
 
 ### Option 2. Run with singularity
 
@@ -107,16 +101,13 @@ The singularity image can be also pulled before running the cmd. The pulled `.si
 # pull singularity image (once for all). There will be a .sif file. 
 singularity pull docker://nipengcsu/longmethyl:0.1
 
-# run longmethyl,
+# run longmethyl
 nextflow run ~/tools/longmethyl -profile singularity \
     --singularity_name longmethyl_0.1.sif \
     --genome GCF_000146045.2_R64_genomic.fna \
     --input fast5s.al.demo/ \
     --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
 ```
-
-
-<p>&nbsp;&nbsp;</p>
 
 ### Option 3. Run with conda
 
@@ -142,18 +133,10 @@ nextflow run ~/tools/longmethyl -profile conda --conda_name /home/nipeng/tools/m
     --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
 ```
 
-<p>&nbsp;</p>
-
-
 ## Acknowledgements
   - Some code were taken from [nanome](https://github.com/TheJacksonLaboratory/nanome) and [nf-core](https://github.com/nf-core).
 
-
-<p>&nbsp;</p>
-
-For nextflow developers: [nextflow_develop.md](docs/nextflow_develop.md)
-
-<p>&nbsp;</p>
+developement: [nextflow_develop.md](docs/nextflow_develop.md)
 
 ## TODO
 - add summmary

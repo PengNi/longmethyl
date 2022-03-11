@@ -2,15 +2,11 @@
 
 以DeepSignal流程为例
 
-<p>&nbsp;</p>
-
 ### 1. nextflow流程目标用户：熟悉shell常用命令
 
-<p>&nbsp;</p>
+### 2. 开发流程需要准备：
 
-### 2. 开发流程需由工具开发相关人员提供：
-
-#### (1) 每个工具步骤的输入输出，参数详解
+#### (1) 流程中每个工具步骤的输入输出，参数详解
 
 DeepSignal步骤：
 
@@ -19,7 +15,7 @@ DeepSignal步骤：
 # ![deepsignal-quickstart](images/deepsignal-quickstart.png)
 参考：[https://github.com/bioinfomaticsCSU/deepsignal#quick-start](https://github.com/bioinfomaticsCSU/deepsignal#quick-start)
 
-#### (2) 源码
+#### (2) 源码及依赖
   * __github__
 
   * __conda__/bioconda（推荐，方便环境配置） 
@@ -30,7 +26,13 @@ DeepSignal步骤：
 
   * __r-cran/Bioconductor__ (R packages) 
 
-<p>&nbsp;</p>
+#### (3) 熟悉nextflow相关知识
+
+  * Nextflow
+
+  * Shell
+
+  * Conda/Docker
 
 ### 3. nextflow流程开发
 
@@ -75,8 +77,6 @@ docker push nipengcsu/longmethyl:0.1
   - workflow举例：
 
 # ![nextflow-workflow](images/nextflow-workflow.png)
-
-<p>&nbsp;</p>
 
 ### 4. 测试
 
