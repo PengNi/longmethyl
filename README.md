@@ -50,8 +50,15 @@ docker pull nipengcsu/longmethyl:0.1
 # activate nextflow environment
 conda activate nextflow
 
-# run longmethyl
+# run longmethyl using cpu
 nextflow run ~/tools/longmethyl -profile docker \
+    --dsname test \
+    --genome GCF_000146045.2_R64_genomic.fna \
+    --input fast5s.al.demo/ \
+    --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
+# or, run longmethyl using GPU, set CUDA_VISIBLE_DEVICES and --gpu
+CUDA_VISIBLE_DEVICES=0 nextflow run ~/tools/longmethyl -profile docker --gpu true \
+    --dsname test \
     --genome GCF_000146045.2_R64_genomic.fna \
     --input fast5s.al.demo/ \
     --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
@@ -67,6 +74,13 @@ conda activate nextflow
 
 # run longmethyl, this cmd will cache a singularity image before processing the data
 nextflow run ~/tools/longmethyl -profile singularity \
+    --dsname test \
+    --genome GCF_000146045.2_R64_genomic.fna \
+    --input fast5s.al.demo/ \
+    --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
+# or, run longmethyl using GPU, set CUDA_VISIBLE_DEVICES
+CUDA_VISIBLE_DEVICES=0 nextflow run ~/tools/longmethyl -profile singularity \
+    --dsname test \
     --genome GCF_000146045.2_R64_genomic.fna \
     --input fast5s.al.demo/ \
     --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
@@ -78,18 +92,21 @@ The downloaded `.img` file can be used then, without downloaded again:
 # this time nextflow will not download the singularity image again, it has already
 # been in the --singularity_cache directory.
 nextflow run ~/tools/longmethyl -profile singularity \
+    --dsname test \
     --genome GCF_000146045.2_R64_genomic.fna \
     --input fast5s.al.demo/ \
     --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
 # or
 nextflow run ~/tools/longmethyl -profile singularity \
     --singularity_cache local_singularity_cache \
+    --dsname test \
     --genome GCF_000146045.2_R64_genomic.fna \
     --input fast5s.al.demo/ \
     --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
 # or
 nextflow run ~/tools/longmethyl -profile singularity \
     --singularity_name local_singularity_cache/nipengcsu-longmethyl-0.1.img \
+    --dsname test \
     --genome GCF_000146045.2_R64_genomic.fna \
     --input fast5s.al.demo/ \
     --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
@@ -104,6 +121,7 @@ singularity pull docker://nipengcsu/longmethyl:0.1
 # run longmethyl
 nextflow run ~/tools/longmethyl -profile singularity \
     --singularity_name longmethyl_0.1.sif \
+    --dsname test \
     --genome GCF_000146045.2_R64_genomic.fna \
     --input fast5s.al.demo/ \
     --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
@@ -114,7 +132,10 @@ nextflow run ~/tools/longmethyl -profile singularity \
   - (1) Install the conda environment named longmethyl (once for all).
 
 ```sh
+# in a gpu machine, make sure there is already cuda10.0 driver in the machine
 conda env create -f longmethyl/environment.yml
+# or, in a cpu-only machine
+conda env create -f longmethyl/environment-cpu.yml
 ```
 
   - (2) Install Guppy, since Guppy is not open-sourced, from [ONT community](https://nanoporetech.com/community) (once for all).
@@ -127,7 +148,16 @@ conda env create -f longmethyl/environment.yml
 conda activate nextflow
 
 # run longmethyl
-nextflow run ~/tools/longmethyl -profile conda --conda_name /home/nipeng/tools/miniconda3/envs/longmethyl \
+nextflow run ~/tools/longmethyl -profile conda \
+    --conda_name /home/nipeng/tools/miniconda3/envs/longmethyl \
+    --dsname test \
+    --genome GCF_000146045.2_R64_genomic.fna \
+    --input fast5s.al.demo/ \
+    --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
+# or, run longmethyl using GPU, set CUDA_VISIBLE_DEVICES
+CUDA_VISIBLE_DEVICES=0 nextflow run ~/tools/longmethyl -profile conda \
+    --conda_name /home/nipeng/tools/miniconda3/envs/longmethyl \
+    --dsname test \
     --genome GCF_000146045.2_R64_genomic.fna \
     --input fast5s.al.demo/ \
     --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
@@ -142,7 +172,7 @@ developement: [nextflow_develop.md](docs/nextflow_develop.md)
 - add summmary
 - test case with no basecall/resquiggle steps
 - ~~dockerfile~~
-- cpu settings
+- cpu settings (do not use task.cpus for all process)
 - clean work dir
 - test with gpu
 - how to set a default deepsignal model

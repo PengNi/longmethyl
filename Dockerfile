@@ -1,6 +1,8 @@
 # Set the base image to Ubuntu 18.04 and NVIDIA GPU from https://hub.docker.com/r/nvidia/cuda
 # or from https://ngc.nvidia.com/catalog/containers/nvidia:cuda/tags
-FROM nvidia/cuda:11.6.0-base-ubuntu18.04
+
+# FROM nvidia/cuda:10.0-base-ubuntu18.04
+FROM nvidia/cuda:10.0-cudnn7-runtime-ubuntu18.04
 
 # Author and maintainer
 MAINTAINER Peng Ni <543943952@qq.com>
@@ -10,9 +12,7 @@ LABEL description="longmethyl" \
 # Guppy version
 ARG DNAME="longmethyl"
 ARG GUPPY_VERSION=4.2.2
-# ARG REMORA_VERSION=0.1.2
-# ARG MEGALODON_VERSION=2.4.2
-ARG BUILD_PACKAGES="wget apt-transport-https procps git curl libnvidia-compute-460-server"
+ARG BUILD_PACKAGES="wget apt-transport-https procps git curl libnvidia-compute-450-server"
 ARG DEBIAN_FRONTEND="noninteractive"
 
 # Install guppy-gpu version, ref: https://github.com/GenomicParisCentre/dockerfiles

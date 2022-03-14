@@ -351,7 +351,7 @@ process Basecall {
     date; hostname; pwd
 
     echo "CUDA_VISIBLE_DEVICES=\${CUDA_VISIBLE_DEVICES:-}"
-    if [[ "\${CUDA_VISIBLE_DEVICES:-}" == "" ]] ; then
+    if [[ "\${CUDA_VISIBLE_DEVICES:-}" == "" || "\${CUDA_VISIBLE_DEVICES:-}" == "-1" ]] ; then
         echo "Detect no GPU, using CPU commandType"
         commandType='cpu'
         gpuOptions=" "
@@ -503,7 +503,7 @@ process DeepSignal {
     ### commandType='cpu'
     outFile="${params.dsname}_deepsignal_batch_${indir.baseName}.tsv"
 
-    if [[ "\${CUDA_VISIBLE_DEVICES:-}" == "" ]] ; then
+    if [[ "\${CUDA_VISIBLE_DEVICES:-}" == "" || "\${CUDA_VISIBLE_DEVICES:-}" == "-1" ]] ; then
         echo "Detect no GPU, using CPU commandType"
         commandType='cpu'
     else
@@ -513,7 +513,7 @@ process DeepSignal {
 
     if [[ \${commandType} == "cpu" ]]; then
         ## CPU version command
-        deepsignal call_mods \
+        CUDA_VISIBLE_DEVICES=-1 deepsignal call_mods \
             --input_path ${indir}/workspace \
             --model_path "\${DeepSignalModelBaseDir}/${params.DEEPSIGNAL_MODEL_DIR}/${params.DEEPSIGNAL_MODEL}" \
             --result_file \${outFile} \

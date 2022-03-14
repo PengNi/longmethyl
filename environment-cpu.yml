@@ -15,6 +15,6 @@ dependencies:
   - h5py==2.8
   - scikit-learn
   - ont-tombo==1.5.1
+  - tensorflow==1.13.1
   - pip:
     - deepsignal==0.1.10
-    - tensorflow-gpu==1.13.1
