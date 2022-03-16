@@ -230,7 +230,7 @@ process EnvCheck {
 
 // Untar of subfolders named 'M1', ..., 'M10', etc.
 process Untar {
-    tag "${fast5_tar.baseName}"
+    tag "${fast5_tar}"
 
     label 'process_medium'
 
@@ -331,7 +331,7 @@ process Untar {
 
 // basecall of subfolders named 'M1', ..., 'M10', etc.
 process Basecall {
-    tag "${fast5_dir.baseName}"
+    tag "${fast5_dir}"
 
     label 'process_medium'
 
@@ -421,7 +421,7 @@ process Basecall {
 
 // Resquiggle on basecalled subfolders named 'M1', ..., 'M10', etc.
 process Resquiggle {
-    tag "${basecallIndir.baseName}"
+    tag "${basecallIndir}"
 
     label 'process_high'
 
@@ -477,7 +477,7 @@ process Resquiggle {
 
 // DeepSignal runs on resquiggled subfolders named 'M1', ..., 'M10', etc.
 process DeepSignal {
-    tag "${indir.baseName}"
+    tag "${indir}"
 
     label 'process_high'
 
