@@ -127,9 +127,9 @@ CUDA_VISIBLE_DEVICES=0 nextflow run ~/tools/longmethyl -profile docker --gpu tru
     --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
 ```
 
-Related issues:
+__Related issues__:
 
-  1. `No swap limit support`
+  1. For `No swap limit support`
 
 ```shell
 # for Ubuntu
@@ -147,7 +147,7 @@ sudo reboot
 
 Ref: [https://unix.stackexchange.com/questions/342735/docker-warning-no-swap-limit-support](https://unix.stackexchange.com/questions/342735/docker-warning-no-swap-limit-support)
 
-  2. `docker: Error response from daemon: could not select device driver "" with capabilities: [[gpu]].`
+  2. For `docker: Error response from daemon: could not select device driver "" with capabilities: [[gpu]].`
 
 ```shell
 # for Ubuntu
@@ -166,7 +166,7 @@ sudo systemctl restart docker
 Ref: [https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)
 
 
-  3. `Failed to initialize NVML: Driver/library version mismatch`
+  3. For `Failed to initialize NVML: Driver/library version mismatch`
 
 Ref: [https://github.com/NVIDIA/nvidia-docker/issues/584](https://github.com/NVIDIA/nvidia-docker/issues/584)
 
