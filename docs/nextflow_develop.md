@@ -89,3 +89,27 @@ deepsignal流程需准备：fast5 files, genome fasta, model.ckpt
 # ![longmethyl-test](images/longmethyl-test.png)
 
 详见[README.md](../README.md)。
+
+
+### 5. 基因组流程参考
+
+#### (1) nf-core (DNA-seq, RNA-seq, Chip-seq, ...; nextflow)
+  - [https://nf-co.re/](https://nf-co.re/)
+  - [nf-core-GitHub](https://github.com/nf-core)
+  - [nf-core-natbiotech-paper](https://www.nature.com/articles/s41587-020-0439-x)
+
+#### (2) METEORE (ONT-5mCpG; snakemake)
+  - [METEORE-GitHub](https://github.com/comprna/METEORE)
+  - [METEORE-ncomm-paper](https://www.nature.com/articles/s41467-021-23778-6)
+
+#### (3) nanome (ONT-5mCpG; nextflow)
+  - [nanome-GitHub](https://github.com/TheJacksonLaboratory/nanome)
+  - [nanome-genomebiology-paper](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-021-02510-z)
+
+#### (4) CulebrONT (ONT-assembly; snakemake)
+  - [CulebrONT-GitHub](https://github.com/SouthGreenPlatform/culebrONT)
+  - [CulebrONT-biorxiv-paper](https://doi.org/10.1101/2021.07.19.452922)
+
+#### (5) PRINCESS (Longreads-snv-sv-5mCpG; snakemake)
+  - [PRINCESS-GitHub](https://github.com/MeHelmy/princess)
+  - [PRINCESS-genomebiology-paper](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-021-02486-w)

@@ -34,7 +34,7 @@ sudo yum install graphviz
 
 ## Usage
 
-### Option 1. Run with singularity (recommend)
+### Option 1. Run with singularity (recommended)
 
 If it is the first time you run with singularity (e.g. using `-profile singularity`), the following cmd will cache the dafault singularity image (`--singularity_name`) to the `--singularity_cache` directory (default: `local_singularity_cache`) first. There will be a `.img` file in the `--singularity_cache` directory.
 
@@ -119,7 +119,11 @@ nextflow run ~/tools/longmethyl -profile docker \
     --genome GCF_000146045.2_R64_genomic.fna \
     --input fast5s.al.demo/ \
     --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
-# or, run longmethyl using GPU, set CUDA_VISIBLE_DEVICES and --gpu
+```
+Currently longmethyl __CANNOT__ run with docker on a GPU machine.
+
+```sh
+# TODO: run longmethyl using GPU, set CUDA_VISIBLE_DEVICES and --gpu
 CUDA_VISIBLE_DEVICES=0 nextflow run ~/tools/longmethyl -profile docker --gpu true \
     --dsname test \
     --genome GCF_000146045.2_R64_genomic.fna \
@@ -176,14 +180,13 @@ Ref: [https://github.com/NVIDIA/nvidia-docker/issues/584](https://github.com/NVI
   - (1) Install the conda environment named longmethyl (once for all).
 
 ```sh
-# in a gpu machine, make sure there is already cuda10.0 driver in the machine
+# in a gpu machine, make sure there is already cuda10.0 and cuda driver in the machine
 conda env create -f longmethyl/environment.yml
 # or, in a cpu-only machine
 conda env create -f longmethyl/environment-cpu.yml
 ```
 
   - (2) Install Guppy, since Guppy is not open-sourced, from [ONT community](https://nanoporetech.com/community) (once for all).
-
 
   - (3) Run longmethyl using `-profile conda` and the longmethyl environment.
 
@@ -215,9 +218,9 @@ developement: [nextflow_develop.md](docs/nextflow_develop.md)
 ## TODO
 - add summmary
 - test case with no basecall/resquiggle steps
+- `--fast5out` not necessary in basecall; tombo-anno split from tombo-resquiggle, and make it optional
 - ~~dockerfile~~
 - cpu settings (do not use task.cpus for all process)
 - clean work dir
-- ~~test with gpu~~ (singularity tested, still waiting to test docker+gpu, anyway)
-- how to set a default deepsignal model
-
+- ~~test with gpu (with docker, run with gpu and cpu cannot succeed in a single container, cause of guppy)~~
+- how to set a default deepsignal model 
