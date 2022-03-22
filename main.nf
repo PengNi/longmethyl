@@ -213,7 +213,7 @@ process EnvCheck {
         fi
 
         find \${find_dir} -name '*.fasta*' | \
-             parallel -j0 -v  'fn={/} ; ln -s -f  {}   reference_genome/\${fn/*.fasta/ref.fasta}'
+            parallel -j0 -v  'fn={/} ; ln -s -f  {}   reference_genome/\${fn/*.fasta/ref.fasta}'
         ## find \${find_dir} -name '*.sizes' | \
         ##         parallel -j1 -v ln -s -f {} reference_genome/chrom.sizes
 

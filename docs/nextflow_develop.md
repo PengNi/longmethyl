@@ -113,3 +113,7 @@ deepsignal流程需准备：fast5 files, genome fasta, model.ckpt
 #### (5) PRINCESS (Longreads-snv-sv-5mCpG; snakemake)
   - [PRINCESS-GitHub](https://github.com/MeHelmy/princess)
   - [PRINCESS-genomebiology-paper](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-021-02486-w)
+
+#### (6) master of pores (ONT-DRS; nextflow)
+  - [MOP-GitHub](https://github.com/biocorecrg/MOP2)
+  - [MOP-fgene-paper](https://doi.org/10.3389/fgene.2020.00211)
