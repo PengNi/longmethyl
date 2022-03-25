@@ -3,18 +3,18 @@
 以DeepSignal流程为例
 
 ### Contents
-* [1. nextflow流程目标用户](#1.-nextflow流程目标用户)
-* [2. 开发流程需要准备](#2.-开发流程需要准备)
-* [3. nextflow流程开发](#3.-nextflow流程开发)
-* [4. 测试](#4.-测试)
-* [5. 基因组流程参考](#5.-基因组流程参考)
+* [1 nextflow流程目标用户](#1-nextflow流程目标用户)
+* [2 开发流程需要准备](#2-开发流程需要准备)
+* [3 nextflow流程开发](#3-nextflow流程开发)
+* [4 测试](#4-测试)
+* [5 基因组流程参考](#5-基因组流程参考)
 
 
-### 1. nextflow流程目标用户
+### 1 nextflow流程目标用户
 
 熟悉shell常用命令
 
-### 2. 开发流程需要准备
+### 2 开发流程需要准备
 
 #### (1) 流程中每个工具步骤的输入输出，参数详解
 
@@ -44,7 +44,7 @@ DeepSignal步骤：
 
   * Conda/Docker
 
-### 3. nextflow流程开发
+### 3 nextflow流程开发
 
 #### (1) 环境依赖配置
 
@@ -88,7 +88,7 @@ docker push nipengcsu/longmethyl:0.1
 
 # ![nextflow-workflow](images/nextflow-workflow.png)
 
-### 4. 测试
+### 4 测试
 
 #### (1) 安装nextflow
 #### (2) 下载longmethyl流程源码
@@ -101,7 +101,7 @@ deepsignal流程需准备：fast5 files, genome fasta, model.ckpt
 详见[README.md](../README.md)。
 
 
-### 5. 基因组流程参考
+### 5 基因组流程参考
 
 #### (1) nf-core (DNA-seq, RNA-seq, Chip-seq, ...; nextflow)
   - [https://nf-co.re/](https://nf-co.re/)
