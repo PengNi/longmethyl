@@ -117,3 +117,7 @@ deepsignal流程需准备：fast5 files, genome fasta, model.ckpt
 #### (6) master of pores (ONT-DRS; nextflow)
   - [MOP-GitHub](https://github.com/biocorecrg/MOP2)
   - [MOP-fgene-paper](https://doi.org/10.3389/fgene.2020.00211)
+
+#### (7) preprocess of Nanocompore (ONT-DRS-m6A; nextflow)
+  - [Nanocompore-GitHub](https://github.com/tleonardi/nanocompore)
+  - [Nanocompore-ncomm-paper](https://www.nature.com/articles/s41467-021-27393-3)
