@@ -2,6 +2,14 @@
 
 __Learning Nextflow__ - A demo nextflow pipeline of methylation detection using long reads
 
+
+## Contents
+* [Installation](#Installation)
+* [Usage](#Usage)
+* [Acknowledgements](#Acknowledgements)
+* [TODO](#TODO)
+
+
 ## Installation
 
   - (1) Install conda from [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html) if neeeded.
