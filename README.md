@@ -232,3 +232,7 @@ developement: [nextflow_develop.md](docs/nextflow_develop.md)
 - clean work dir
 - ~~test with gpu (with docker, run with gpu and cpu cannot succeed in a single container, cause of guppy)~~
 - how to set a default deepsignal model 
+- result_summary\_statistics/for visualization
+- add test demo, including benchmark and evaluation
+- test a 20x/40x hg002 dataset
+- add deepsignal2
