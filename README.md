@@ -225,14 +225,16 @@ developement: [nextflow_develop.md](docs/nextflow_develop.md)
 
 ## TODO
 - add summmary
-- test case with no basecall/resquiggle steps
+- ~~test case with no basecall/resquiggle steps~~
 - `--fast5out` not necessary in basecall; tombo-anno split from tombo-resquiggle, and make it optional
 - ~~dockerfile~~
 - cpu settings (do not use task.cpus for all process)
 - clean work dir
 - ~~test with gpu (with docker, run with gpu and cpu cannot succeed in a single container, cause of guppy)~~
 - how to set a default deepsignal model 
-- result_summary\_statistics/for visualization
+- result_summary\_statistics/for visualization?
 - add test demo, including benchmark and evaluation
 - test a 20x/40x hg002 dataset
 - add deepsignal2
+- multi_to\_single step
+- vbz issue

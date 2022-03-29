@@ -58,7 +58,7 @@ def helpMessage() {
     -profile options:
       Use this parameter to choose a predefined configuration profile. Profiles can give configuration presets for different compute environments.
 
-      test      A bundle of input params for ecoli test
+      test      A test demo config
       docker    A generic configuration profile to be used with Docker, pulls software from Docker Hub: /:latest
       singularity   A generic configuration profile to be used with Singularity, pulls software from: docker:///:latest
       conda     Please only use conda as a last resort i.e. when it's not possible to run the pipeline with Docker, Singularity. Check our GitHub for how to install local conda environment
@@ -168,7 +168,7 @@ process EnvCheck {
     //    mode: "copy", pattern: "tools_version_table.tsv", overwrite: true
 
     input:
-    path utils
+    path ch_utils
     path deepsignalDir
     path reference_genome
 
@@ -236,57 +236,61 @@ process Untar {
 
     input:
     path fast5_tar
+    path ch_utils
 
     output:
     path "${fast5_tar.baseName}.untar", emit:untar,  optional: true
 
     script:
     cores = task.cpus
-    if (!params.runBasecall) { // perform basecall
+    if (params.runBasecall) { // perform basecall
         """
         date; hostname; pwd
-        echo "CUDA_VISIBLE_DEVICES=\${CUDA_VISIBLE_DEVICES:-}"
 
         ## Extract input files tar/tar.gz/folder
-        mkdir -p untarTempDir
-        if [[ ${fast5_tar} == *.tar && -f ${fast5_tar} ]] ; then
-            ### deal with tar
-            tar -xf ${fast5_tar} -C untarTempDir
-        elif [[ ${fast5_tar} == *.tar.gz && -f ${fast5_tar} ]] ; then
-            ### deal with tar.gz
-            tar -xzf ${fast5_tar} -C untarTempDir
-        elif [[ -d ${fast5_tar} ]]; then
+        if [[ -d ${fast5_tar} ]]; then
             ## Copy files, do not change original files such as old analyses data
-            find ${fast5_tar}/ -name '*.fast5' | \
-                parallel -j$cores  cp {} untarTempDir/
+            ## find ${fast5_tar}/ -name '*.fast5' | \
+            ##    parallel -j$cores  cp {} untarTempDir/
+            ln -s `realpath ${fast5_tar}` ${fast5_tar.baseName}.untar
         else
-            echo "### Untar error for input=${fast5_tar}"
+            mkdir -p untarTempDir
+            if [[ ${fast5_tar} == *.tar && -f ${fast5_tar} ]] ; then
+                ### deal with tar
+                tar -xf ${fast5_tar} -C untarTempDir
+            elif [[ ${fast5_tar} == *.tar.gz && -f ${fast5_tar} ]] ; then
+                ### deal with tar.gz
+                tar -xzf ${fast5_tar} -C untarTempDir
+            else
+                echo "### Untar error for input=${fast5_tar}"
+            fi
+
+            ## Move fast5 raw/basecalled files into XXX.untar folder
+            mkdir -p ${fast5_tar.baseName}.untar
+
+            find untarTempDir -name "*.fast5" -type f | \
+                parallel -j$cores  mv {}  ${fast5_tar.baseName}.untar/
+
+            ## Clean temp files
+            rm -rf untarTempDir
+
+            ## Clean old basecalled analyses in input fast5 files
+            if [[ "${params.cleanAnalyses}" == true ]] ; then
+                echo "### Start cleaning old analysis"
+                ## python -c 'import h5py; print(h5py.version.info)'
+                python utils/clean_old_basecall_in_fast5.py \
+                    -i ${fast5_tar.baseName}.untar --is-indir --verbose\
+                    --processor $cores
+            fi
+
+            totalFiles=\$( find ${fast5_tar.baseName}.untar -name "*.fast5" -type f | wc -l )
+            echo "### Total fast5 input files:\${totalFiles}"
+            if (( totalFiles==0 )); then
+                echo "### no fast5 files at ${fast5_tar.baseName}.untar, skip this job"
+                rm -rf ${fast5_tar.baseName}.untar
+            fi
         fi
 
-        ## Move fast5 raw/basecalled files into XXX.untar folder
-        mkdir -p ${fast5_tar.baseName}.untar
-
-        find untarTempDir -name "*.fast5" -type f | \
-            parallel -j$cores  mv {}  ${fast5_tar.baseName}.untar/
-
-        ## Clean temp files
-        rm -rf untarTempDir
-
-        ## Clean old basecalled analyses in input fast5 files
-        if [[ "${params.cleanAnalyses}" == true ]] ; then
-            echo "### Start cleaning old analysis"
-            ## python -c 'import h5py; print(h5py.version.info)'
-            clean_old_basecall_in_fast5.py \
-                -i ${fast5_tar.baseName}.untar --is-indir --verbose\
-                --processor $cores
-        fi
-
-        totalFiles=\$( find ${fast5_tar.baseName}.untar -name "*.fast5" -type f | wc -l )
-        echo "### Total fast5 input files:\${totalFiles}"
-        if (( totalFiles==0 )); then
-            echo "### no fast5 files at ${fast5_tar.baseName}.untar, skip this job"
-            rm -rf ${fast5_tar.baseName}.untar
-        fi
         echo "### Untar DONE"
         """
     } else {
@@ -294,35 +298,39 @@ process Untar {
         date; hostname; pwd
 
         ## Extract input files tar/tar.gz/folder
-        mkdir -p untarTempDir
-        if [[ ${fast5_tar} == *.tar && -f ${fast5_tar} ]] ; then
-            ### deal with tar
-            tar -xf ${fast5_tar} -C untarTempDir
-        elif [[ ${fast5_tar} == *.tar.gz && -f ${fast5_tar} ]] ; then
-            ### deal with tar.gz
-            tar -xzf ${fast5_tar} -C untarTempDir
-        elif [[ -d ${fast5_tar} ]] ; then
-            ## user provide basecalled input dir, just cp them
-            mkdir -p untarTempDir/test
-            cp -rf ${fast5_tar}/*   untarTempDir/test/
+        if [[ -d ${fast5_tar} ]]; then
+            ## Copy files, do not change original files such as old analyses data
+            ## find ${fast5_tar}/ -name '*.fast5' | \
+            ##    parallel -j$cores  cp {} untarTempDir/
+            ln -s `realpath ${fast5_tar}` ${fast5_tar.baseName}.untar
         else
-            echo "### Untar error for input=${fast5_tar}"
+            mkdir -p untarTempDir
+            if [[ ${fast5_tar} == *.tar && -f ${fast5_tar} ]] ; then
+                ### deal with tar
+                tar -xf ${fast5_tar} -C untarTempDir
+            elif [[ ${fast5_tar} == *.tar.gz && -f ${fast5_tar} ]] ; then
+                ### deal with tar.gz
+                tar -xzf ${fast5_tar} -C untarTempDir
+            else
+                echo "### Untar error for input=${fast5_tar}"
+            fi
+
+            ## Move fast5 raw/basecalled files into XXX.untar folder
+            mkdir -p ${fast5_tar.baseName}.untar
+            ## Keep the directory structure for basecalled input
+            mv untarTempDir/*/*   ${fast5_tar.baseName}.untar/
+
+            ## Clean temp files
+            rm -rf untarTempDir
+
+            totalFiles=\$( find ${fast5_tar.baseName}.untar -name "*.fast5" -type f | wc -l )
+            echo "### Total fast5 input files:\${totalFiles}"
+            if (( totalFiles==0 )); then
+                echo "### no fast5 files at ${fast5_tar.baseName}.untar, skip this job"
+                rm -rf ${fast5_tar.baseName}.untar
+            fi
         fi
 
-        ## Move fast5 raw/basecalled files into XXX.untar folder
-        mkdir -p ${fast5_tar.baseName}.untar
-        ## Keep the directory structure for basecalled input
-        mv untarTempDir/*/*   ${fast5_tar.baseName}.untar/
-
-        ## Clean temp files
-        rm -rf untarTempDir
-
-        totalFiles=\$( find ${fast5_tar.baseName}.untar -name "*.fast5" -type f | wc -l )
-        echo "### Total fast5 input files:\${totalFiles}"
-        if (( totalFiles==0 )); then
-            echo "### no fast5 files at ${fast5_tar.baseName}.untar, skip this job"
-            rm -rf ${fast5_tar.baseName}.untar
-        fi
         echo "### Untar DONE"
         """
     }
@@ -341,8 +349,8 @@ process Basecall {
     output:
     path "${fast5_dir.baseName}.basecalled",    emit: basecall
 
-    when:
-    params.runBasecall
+    //when:
+    //params.runBasecall
 
     script:
     cores = task.cpus
@@ -367,15 +375,31 @@ process Basecall {
 
     if [[ ${params.runBasecall} == true ]] ; then
         ## CPU/GPU version command
+        #guppy_basecaller --input_path ${fast5_dir} \
+        #    --save_path "${fast5_dir.baseName}.basecalled" \
+        #    --config ${params.GUPPY_BASECALL_MODEL} \
+        #    --num_callers ${cores} \
+        #    --fast5_out --compress_fastq\
+        #    --verbose_logs  \${gpuOptions} &>> ${params.dsname}.${fast5_dir.baseName}.Basecall.run.log
         guppy_basecaller --input_path ${fast5_dir} \
             --save_path "${fast5_dir.baseName}.basecalled" \
             --config ${params.GUPPY_BASECALL_MODEL} \
             --num_callers ${cores} \
-            --fast5_out --compress_fastq\
+            --compress_fastq \
             --verbose_logs  \${gpuOptions} &>> ${params.dsname}.${fast5_dir.baseName}.Basecall.run.log
-    else
+    elif [[ ${params.runResquiggle} == true && ${params.runTomboanno} == true ]] ; then
         ## Just use user's basecalled input
-        cp -rf ${fast5_dir}/*   ${fast5_dir.baseName}.basecalled/
+        # cp -rf ${fast5_dir}/* ${fast5_dir.baseName}.basecalled/
+        if ls ${fast5_dir}/*.fastq 1> /dev/null 2>&1; then
+            cp -rf ${fast5_dir}/*.fastq ${fast5_dir.baseName}.basecalled/
+            # todo: gzip *.fastq
+        fi
+        if ls ${fast5_dir}/*.fastq.gz 1> /dev/null 2>&1; then
+            cp -rf ${fast5_dir}/*.fastq.gz ${fast5_dir.baseName}.basecalled/
+        fi
+        if ls ${fast5_dir}/*sequencing_summary* 1> /dev/null 2>&1; then
+            cp -rf ${fast5_dir}/*sequencing_summary* ${fast5_dir.baseName}.basecalled/
+        fi
     fi
 
     ## Combine fastq
@@ -398,6 +422,10 @@ process Basecall {
                     "${fast5_dir.baseName}.basecalled"/batch_basecall_combine_fq_${fast5_dir.baseName}.fq.gz
             done
     fi
+
+    if [[ ! -s "${fast5_dir.baseName}.basecalled"/batch_basecall_combine_fq_${fast5_dir.baseName}.fq.gz ]]; then
+        rm "${fast5_dir.baseName}.basecalled"/batch_basecall_combine_fq_${fast5_dir.baseName}.fq.gz
+    fi
     echo "### Combine fastq.gz DONE"
 
     ## Remove fastq.gz
@@ -411,9 +439,10 @@ process Basecall {
     fi
 
     ## After basecall, rename and publish summary filenames, summary may also be used by resquiggle
-    mv ${fast5_dir.baseName}.basecalled/sequencing_summary.txt \
-        ${fast5_dir.baseName}.basecalled/${fast5_dir.baseName}-sequencing_summary.txt
-
+    if [[ -f ${fast5_dir.baseName}.basecalled/sequencing_summary.txt ]]; then
+        mv ${fast5_dir.baseName}.basecalled/sequencing_summary.txt \
+            ${fast5_dir.baseName}.basecalled/${fast5_dir.baseName}-sequencing_summary.txt
+    fi
     echo "### Basecalled by Guppy DONE"
     """
 }
@@ -426,6 +455,7 @@ process Resquiggle {
     label 'process_high'
 
     input:
+    path    fast5_dir
     path    basecallIndir
     each    path(reference_genome)
 
@@ -433,7 +463,7 @@ process Resquiggle {
     path "${basecallIndir.baseName}.resquiggle",    emit: resquiggle
 
     when:
-    params.runDeepSignal
+    params.runResquiggle
 
     script:
     cores = task.cpus
@@ -442,25 +472,34 @@ process Resquiggle {
     
     """
     rm -rf ${basecallIndir.baseName}.resquiggle
-    mkdir -p ${basecallIndir.baseName}.resquiggle/workspace
-    cp -f ${basecallIndir}/batch_basecall_combine_fq_*.fq.gz  \
-        ${basecallIndir.baseName}.resquiggle/
-    cp -f ${basecallIndir}/${basecallIndir.baseName}-sequencing_summary.txt  \
-        ${basecallIndir.baseName}.resquiggle/
-    find ${basecallIndir}/workspace -name '*.fast5' -type f| \
-        parallel -j${cores}  \
-        'cp {}   ${basecallIndir.baseName}.resquiggle/workspace/'
-    echo '### Duplicate from basecall DONE'
-    gunzip ${basecallIndir.baseName}.resquiggle/batch_basecall_combine_fq_*.fq.gz
-    tombo preprocess annotate_raw_with_fastqs\
-        --fast5-basedir ${basecallIndir.baseName}.resquiggle/workspace\
-        --fastq-filenames ${basecallIndir.baseName}.resquiggle/batch_basecall_combine_fq_*.fq\
-        --sequencing-summary-filenames ${basecallIndir.baseName}.resquiggle/${basecallIndir.baseName}-sequencing_summary.txt\
-        --basecall-group ${params.BasecallGroupName}\
-        --basecall-subgroup ${params.BasecallSubGroupName}\
-        --overwrite --processes  ${samtools_cores} \
-        &>> ${params.dsname}.${basecallIndir.baseName}.Resquiggle.run.log
-    echo '### tombo preprocess DONE'
+    mkdir -p ${basecallIndir.baseName}.resquiggle
+    # mkdir -p ${basecallIndir.baseName}.resquiggle/workspace
+    # cp -f ${basecallIndir}/batch_basecall_combine_fq_*.fq.gz  \
+    #     ${basecallIndir.baseName}.resquiggle/
+    # cp -f ${basecallIndir}/${basecallIndir.baseName}-sequencing_summary.txt  \
+    #     ${basecallIndir.baseName}.resquiggle/
+    # find ${basecallIndir}/workspace -name '*.fast5' -type f| \
+    #     parallel -j${cores}  \
+    #     'cp {}   ${basecallIndir.baseName}.resquiggle/workspace/'
+    # echo '### Duplicate from basecall DONE'
+    if [[ ${params.runTomboanno} == true ]] ; then
+        if ls ${basecallIndir}/batch_basecall_combine_fq_*.fq.gz 1> /dev/null 2>&1; then
+            gunzip -c ${basecallIndir}/batch_basecall_combine_fq_*.fq.gz > ${basecallIndir.baseName}.resquiggle/batch_basecall_combine_fq.all.fq
+        else
+            echo -e "Maybe you should set runBasecall as true!"
+            exit 1
+        fi
+        tombo preprocess annotate_raw_with_fastqs\
+            --fast5-basedir ${fast5_dir} \
+            --fastq-filenames ${basecallIndir.baseName}.resquiggle/batch_basecall_combine_fq.all.fq \
+            --sequencing-summary-filenames ${basecallIndir}/${basecallIndir.baseName}-sequencing_summary.txt \
+            --basecall-group ${params.BasecallGroupName}\
+            --basecall-subgroup ${params.BasecallSubGroupName}\
+            --overwrite --processes  ${samtools_cores} \
+            &>> ${params.dsname}.${basecallIndir.baseName}.Resquiggle.run.log
+        rm -rf ${basecallIndir.baseName}.resquiggle/batch_basecall_combine_fq.all.fq
+        echo '### tombo preprocess DONE'
+    fi
     tombo resquiggle\
         --processes ${resquiggle_cores} \
         --corrected-group ${params.ResquiggleCorrectedGroup} \
@@ -468,7 +507,7 @@ process Resquiggle {
         --basecall-subgroup ${params.BasecallSubGroupName}\
         --ignore-read-locks ${params.tomboResquiggleOptions ? params.tomboResquiggleOptions : ''} \
         --overwrite \
-        ${basecallIndir.baseName}.resquiggle/workspace \
+        ${fast5_dir} \
         ${referenceGenome} &>> ${params.dsname}.${basecallIndir.baseName}.Resquiggle.run.log  
     echo '### tombo resquiggle DONE'
     """
@@ -487,6 +526,7 @@ process DeepSignal {
 
     input:
     path indir
+    path tombo_dir
     each path(reference_genome)
     each path(deepsignal_model_dir)
 
@@ -514,7 +554,7 @@ process DeepSignal {
     if [[ \${commandType} == "cpu" ]]; then
         ## CPU version command
         CUDA_VISIBLE_DEVICES=-1 deepsignal call_mods \
-            --input_path ${indir}/workspace \
+            --input_path ${indir} \
             --model_path "\${DeepSignalModelBaseDir}/${params.DEEPSIGNAL_MODEL_DIR}/${params.DEEPSIGNAL_MODEL}" \
             --result_file \${outFile} \
             --reference_path ${referenceGenome} \
@@ -524,7 +564,7 @@ process DeepSignal {
     elif [[ \${commandType} == "gpu" ]]; then
         ## GPU version command
         deepsignal call_mods \
-            --input_path ${indir}/workspace \
+            --input_path ${indir} \
             --model_path "\${DeepSignalModelBaseDir}/${params.DEEPSIGNAL_MODEL_DIR}/${params.DEEPSIGNAL_MODEL}" \
             --result_file \${outFile} \
             --reference_path ${referenceGenome} \
@@ -590,7 +630,6 @@ process DeepSignalFreq {
     """
 }
 
-
 /*
 ========================================================================================
     RUN ALL WORKFLOWS
@@ -619,20 +658,29 @@ workflow {
     }
 
     EnvCheck(ch_utils, deepsignalDir, genome_ch)
-    Untar(fast5_tar_ch)
+
+    Untar(fast5_tar_ch, ch_utils)
+
     Basecall(Untar.out.untar)
 
     // Resquiggle running if use Tombo or DeepSignal
-    Resquiggle(Basecall.out.basecall, EnvCheck.out.reference_genome)
+    Resquiggle(Untar.out.untar, Basecall.out.basecall, EnvCheck.out.reference_genome)
 
     if (params.runDeepSignal) {
-        DeepSignal(Resquiggle.out.resquiggle, EnvCheck.out.reference_genome, EnvCheck.out.deepsignal_model)
+        if (params.runResquiggle){
+            DeepSignal(Untar.out.untar, Resquiggle.out.resquiggle, 
+                   EnvCheck.out.reference_genome, EnvCheck.out.deepsignal_model)
+        }
+        else {
+            DeepSignal(Untar.out.untar, Basecall.out.basecall, 
+                   EnvCheck.out.reference_genome, EnvCheck.out.deepsignal_model)
+        }
         comb_deepsignal = DeepSignalFreq(DeepSignal.out.deepsignal_out.collect(), ch_utils, ch_src)
         s3 = comb_deepsignal.site_unify
     } else {
         s3 = Channel.empty()
     }
-    
+
 }
 
 /*
