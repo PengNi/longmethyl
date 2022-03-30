@@ -74,9 +74,16 @@ if (params.help){
     exit 0
 }
 
+
 if (!params.genome){
     exit 1, "--genome option not specified!"
 }
+
+
+if (params.eval_methcall && !params.bs_bedmethyl){
+    exit 1, "--eval_methcall is set as true, but there is no --bs_bedmethyl specified!"
+}
+
 
 genome_map = params.genomes
 
@@ -142,6 +149,10 @@ if (params.input.endsWith(".filelist.txt")) {
 } else {
     // For single file/wildcard matched files
     Channel.fromPath( params.input, checkIfExists: true ).set{ fast5_tar_ch }
+}
+
+if (params.eval_methcall) {
+    bs_bedmethyl_file = Channel.fromPath(params.bs_bedmethyl,  type: 'file', checkIfExists: true)
 }
 
 
@@ -526,7 +537,7 @@ process DeepSignal {
 
     input:
     path indir
-    path tombo_dir
+    path fake_dir
     each path(reference_genome)
     each path(deepsignal_model_dir)
 
@@ -630,6 +641,69 @@ process DeepSignalFreq {
     """
 }
 
+
+// eval deepsignal at read level, genome level
+process DeepSignalEval {
+    tag "${params.dsname}"
+
+    publishDir "${params.outdir}/${params.dsname}-ds",
+        mode: "copy", pattern: "${params.dsname}_deepsignal_eval_readlevel.txt"
+    publishDir "${params.outdir}/${params.dsname}-ds",
+        mode: "copy", pattern: "${params.dsname}_deepsignal_eval_genomelevel*.txt"
+
+    input:
+    path read_gz
+    path site_gz
+    path bs_bedmethyl
+    path ch_utils
+    path ch_src
+
+    output:
+    path "${params.dsname}_deepsignal_eval_readlevel.txt",   emit: deepsignal_eval_read
+    path "${params.dsname}_deepsignal_eval_genomelevel.txt",   emit: deepsignal_eval_genome
+    path "${params.dsname}_deepsignal_eval_genomelevel.forplot.txt",   emit: deepsignal_eval_genome_p
+
+    when:
+    params.eval_methcall
+
+    script:
+    """
+    ## users should prepare a bedmethyl file as input
+    ## convert human bismark cov file to bedmethyl as example as follows, 
+    ## get a "CpG.gz.bismark.zero.cov.bed" file
+    ## gunzip CpG.gz.bismark.zero.cov.gz
+    ## python3 ~/path/to/src/bedcov2bedmethyl.py --cov CpG.gz.bismark.zero.cov --genome /path/to/genome.fa
+    
+    echo "### prepare bs file for comparison"
+    bscmpfile="${params.dsname}_${bs_bedmethyl.baseName}_ready_for_cmp.bed"
+    echo ${params.dsname}
+    
+    if [[ ${params.comb_strands} == true ]] ; then
+        python utils/comb_two_strands_of_rmet.py --report_fp ${bs_bedmethyl} \
+            --rtype bedmethyl --out \${bscmpfile}
+    else
+        cp -rf ${bs_bedmethyl} \${bscmpfile}
+    fi
+
+    if [[ ${params.eval_fwd_only} == true ]] ; then
+        awk -F'\t' '\$6 == "+"' \${bscmpfile} > \${bscmpfile}_temp
+        mv \${bscmpfile}_temp \${bscmpfile}
+    fi
+
+    echo "### compare with bs"
+    
+    bash utils/eval_deepsignal_readlevel.sh \${bscmpfile} ${read_gz} \
+        ${params.dsname} ${params.dsname}_deepsignal_eval_readlevel.txt
+
+    bash utils/eval_deepsignal_genomelevel.sh \${bscmpfile} ${site_gz} \
+        ${params.dsname}_deepsignal_eval_genomelevel.forplot.txt \
+        ${params.dsname}_deepsignal_eval_genomelevel.txt
+
+    echo "### DeepSignal eval DONE"
+    """
+}
+
+
 /*
 ========================================================================================
     RUN ALL WORKFLOWS
@@ -677,6 +751,10 @@ workflow {
         }
         comb_deepsignal = DeepSignalFreq(DeepSignal.out.deepsignal_out.collect(), ch_utils, ch_src)
         s3 = comb_deepsignal.site_unify
+        DeepSignalEval(comb_deepsignal.deepsignal_combine_out, 
+                       comb_deepsignal.site_unify, 
+                       bs_bedmethyl_file, 
+                       ch_utils, ch_src)
     } else {
         s3 = Channel.empty()
     }
