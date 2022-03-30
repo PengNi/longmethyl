@@ -75,6 +75,14 @@ RUN apt-get -q update && \
 #    rm -rf /var/lib/apt/lists/*
 # ENV PATH /opt/ont-guppy/bin:$PATH
 
+# set vbz plugin
+ARG VBZ_VERSION=1.0.1
+RUN cd /tmp && \
+    wget -q https://github.com/nanoporetech/vbz_compression/releases/download/v${VBZ_VERSION}/ont-vbz-hdf-plugin-${VBZ_VERSION}-Linux-x86_64.tar.gz && \
+    tar zxvf ont-vbz-hdf-plugin-${VBZ_VERSION}-Linux-x86_64.tar.gz -C /opt && \
+    rm *tar.gz
+ENV HDF5_PLUGIN_PATH /opt/ont-vbz-hdf-plugin-${VBZ_VERSION}-Linux/usr/local/hdf5/lib/plugin
+
 #Install miniconda
 RUN wget -q https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O Miniconda.sh && \
     /bin/bash Miniconda.sh -b -p /opt/conda && \
