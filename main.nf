@@ -177,8 +177,7 @@ process EnvCheck {
     tag "envcheck"
     errorStrategy 'terminate'
 
-    // publishDir "${params.outdir}/${params.dsname}-ds",
-    //    mode: "copy", pattern: "tools_version_table.tsv", overwrite: true
+    label 'process_low'
 
     input:
     path ch_utils
@@ -393,18 +392,12 @@ process Basecall {
 
     if [[ ${params.runBasecall} == true ]] ; then
         ## CPU/GPU version command
-        #guppy_basecaller --input_path ${fast5_dir} \
-        #    --save_path "${fast5_dir.baseName}.basecalled" \
-        #    --config ${params.GUPPY_BASECALL_MODEL} \
-        #    --num_callers ${cores} \
-        #    --fast5_out --compress_fastq\
-        #    --verbose_logs  \${gpuOptions} &>> ${params.dsname}.${fast5_dir.baseName}.Basecall.run.log
         guppy_basecaller --input_path ${fast5_dir} -r \
             --save_path "${fast5_dir.baseName}.basecalled" \
             --config ${params.GUPPY_BASECALL_MODEL} \
             --num_callers ${cores} \
             --compress_fastq \
-            --verbose_logs \${gpuOptions} &>> ${params.dsname}.${fast5_dir.baseName}.Basecall.run.log
+            \${gpuOptions} &>> ${params.dsname}.${fast5_dir.baseName}.Basecall.run.log
     elif [[ ${params.runResquiggle} == true && ${params.runTomboanno} == true ]] ; then
         ## Just use user's basecalled input
         # cp -rf ${fast5_dir}/* ${fast5_dir.baseName}.basecalled/
@@ -476,6 +469,7 @@ process Resquiggle {
     path    fast5_dir
     path    basecallIndir
     each    path(reference_genome)
+    path    ch_utils
 
     output:
     path "${basecallIndir.baseName}.resquiggle",    emit: resquiggle
@@ -506,7 +500,7 @@ process Resquiggle {
             echo -e "Maybe you should set runBasecall as true, or set runTomboanno as false!"
             exit 1
         fi
-        tombo preprocess annotate_raw_with_fastqs\
+        python utils/memusg tombo preprocess annotate_raw_with_fastqs\
             --fast5-basedir ${fast5_dir} \
             --fastq-filenames ${basecallIndir.baseName}.resquiggle/batch_basecall_combine_fq.all.fq \
             --sequencing-summary-filenames ${basecallIndir}/${basecallIndir.baseName}-sequencing_summary.txt \
@@ -517,7 +511,7 @@ process Resquiggle {
         rm -rf ${basecallIndir.baseName}.resquiggle/batch_basecall_combine_fq.all.fq
         echo '### tombo preprocess DONE'
     fi
-    tombo resquiggle\
+    python utils/memusg tombo resquiggle\
         --processes ${resquiggle_cores} \
         --corrected-group ${params.ResquiggleCorrectedGroup} \
         --basecall-group ${params.BasecallGroupName} \
@@ -545,6 +539,7 @@ process DeepSignal {
     path indir
     path fake_dir
     each path(deepsignal_model_dir)
+    path ch_utils
 
     output:
     path "${params.dsname}_deepsignal_batch_${indir.baseName}.*.gz",    emit: deepsignal_out
@@ -569,7 +564,7 @@ process DeepSignal {
 
     if [[ \${commandType} == "cpu" ]]; then
         ## CPU version command
-        CUDA_VISIBLE_DEVICES=-1 deepsignal call_mods \
+        CUDA_VISIBLE_DEVICES=-1 python utils/memusg deepsignal call_mods \
             --input_path ${indir} \
             --model_path "\${DeepSignalModelBaseDir}/${params.DEEPSIGNAL_MODEL_DIR}/${params.DEEPSIGNAL_MODEL}" \
             --result_file \${outFile} \
@@ -578,7 +573,7 @@ process DeepSignal {
             --is_gpu no   &>> ${params.dsname}.${indir.baseName}.DeepSignal.run.log
     elif [[ \${commandType} == "gpu" ]]; then
         ## GPU version command
-        deepsignal call_mods \
+        python utils/memusg deepsignal call_mods \
             --input_path ${indir} \
             --model_path "\${DeepSignalModelBaseDir}/${params.DEEPSIGNAL_MODEL_DIR}/${params.DEEPSIGNAL_MODEL}" \
             --result_file \${outFile} \
@@ -782,24 +777,24 @@ workflow {
 
     // Resquiggle running if use Tombo or DeepSignal
     if (params.runBasecall) {
-        Resquiggle(Untar.out.untar, Basecall.out.basecall, EnvCheck.out.reference_genome)
+        Resquiggle(Untar.out.untar, Basecall.out.basecall, EnvCheck.out.reference_genome, ch_utils)
     }
     else {
-        Resquiggle(Untar.out.untar, Untar.out.fake, EnvCheck.out.reference_genome)
+        Resquiggle(Untar.out.untar, Untar.out.fake, EnvCheck.out.reference_genome, ch_utils)
     }
 
     if (params.runDeepSignal) {
         if (params.runResquiggle){
             DeepSignal(Untar.out.untar, Resquiggle.out.resquiggle, 
-                       EnvCheck.out.deepsignal_model)
+                       EnvCheck.out.deepsignal_model, ch_utils)
         }
         else if (params.runBasecall) {
             DeepSignal(Untar.out.untar, Basecall.out.basecall, 
-                       EnvCheck.out.deepsignal_model)
+                       EnvCheck.out.deepsignal_model, ch_utils)
         }
         else {
             DeepSignal(Untar.out.untar, Untar.out.fake, 
-                       EnvCheck.out.deepsignal_model)
+                       EnvCheck.out.deepsignal_model, ch_utils)
         }
         comb_deepsignal = DeepSignalFreq(DeepSignal.out.deepsignal_out.collect(), ch_utils, ch_src)
         s3 = comb_deepsignal.site_unify
