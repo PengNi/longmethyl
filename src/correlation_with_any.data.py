@@ -17,6 +17,8 @@ def _read_one_mod_bed_file(freqfile, covcf, args):
         infile = gzip.open(freqfile, 'rt')
     else:
         infile = open(freqfile, 'r')
+    coverages = []
+    cnt_sites = 0
     for line in infile:
         words = line.strip().split("\t")
         chrom = words[0]
@@ -24,6 +26,8 @@ def _read_one_mod_bed_file(freqfile, covcf, args):
         cov = float(words[9])
         rmet = float(words[10]) / 100
         # methy_cov = rmet * cov
+
+        coverages.append(cov)
 
         cnt_flag = 0
         if args.contig_prefix is not None:
@@ -36,10 +40,12 @@ def _read_one_mod_bed_file(freqfile, covcf, args):
             cnt_flag = 1
 
         if cnt_flag == 1:
+            cnt_sites += 1
             if cov >= covcf:
                 freqinfo[m_key] = rmet
     infile.close()
-    return freqinfo
+    mean_cov = sum(coverages)/float(len(coverages))
+    return freqinfo, cnt_sites, mean_cov
 
 
 def _read_one_mod_freq_file(freqfile, covcf, args):
@@ -49,6 +55,8 @@ def _read_one_mod_freq_file(freqfile, covcf, args):
         infile = gzip.open(freqfile, 'rt')
     else:
         infile = open(freqfile, 'r')
+    coverages = []
+    cnt_sites = 0
     for line in infile:
         words = line.strip().split("\t")
         chrom = words[0]
@@ -71,11 +79,15 @@ def _read_one_mod_freq_file(freqfile, covcf, args):
                 cnt_flag = 1
         else:
             cnt_flag = 1
+
         if cnt_flag == 1:
+            coverages.append(cov)
+            cnt_sites += 1
             if cov >= covcf:
                 freqinfo[m_key] = rmet
     infile.close()
-    return freqinfo
+    mean_cov = sum(coverages)/float(len(coverages))
+    return freqinfo, cnt_sites, mean_cov
 
 
 def _cal_corr_of_rmet1_and_rmet2(freqinfo1, freqinfo2):
@@ -104,23 +116,25 @@ def cmp_sitesrmet_of_tgs_and_bs(args):
     print("==coverage cutoff for query file: {}".format(args.covcf))
     print("==coverage cutoff for target file: {}".format(args.covcf_t))
     print()
-    print("====query: {}".format(args.queryfile))
     if str(args.queryfile).endswith(".bed") or str(args.queryfile).endswith(".bed.gz"):
-        freqinfo_nano = _read_one_mod_bed_file(args.queryfile, args.covcf, args)
+        freqinfo_nano, numsites, meancov_nano = _read_one_mod_bed_file(args.queryfile, args.covcf, args)
     else:
-        freqinfo_nano = _read_one_mod_freq_file(args.queryfile, args.covcf, args)
+        freqinfo_nano, numsites, meancov_nano = _read_one_mod_freq_file(args.queryfile, args.covcf, args)
+    print("====query: {}, num_sites: {}, mean_covarge: {:.4f}".format(args.queryfile, 
+                                                                      numsites, meancov_nano))
     freqinfo_t = []
     for targetfile in args.targetfile:
         if str(targetfile).endswith(".bed") or str(targetfile).endswith(".bed.gz"):
-            freqtmp = _read_one_mod_bed_file(targetfile, args.covcf_t, args)
+            freqtmp, numsites_t, meancov_t = _read_one_mod_bed_file(targetfile, args.covcf_t, args)
         else:
-            freqtmp = _read_one_mod_freq_file(targetfile, args.covcf_t, args)
+            freqtmp, numsites_t, meancov_t = _read_one_mod_freq_file(targetfile, args.covcf_t, args)
         _, _, qnum, tnum, sitesnum, corr, r_square, scorr, rmse = _cal_corr_of_rmet1_and_rmet2(freqinfo_nano, 
                                                                                                freqtmp)
-        print("==target: {}\n"
+        print("==target: {}, num_sites: {}, mean_covarge: {:.4f}\n"
               "\t\tsites: inter-{}/query-{}/target-{}\n"
               "\t\tpearson: {:.4f}, r_square: {:.4f}, "
-              "spearman: {:.4f}, RMSE: {:.4f}".format(targetfile, sitesnum, qnum, tnum, 
+              "spearman: {:.4f}, RMSE: {:.4f}".format(targetfile, numsites_t, meancov_t, 
+                                                      sitesnum, qnum, tnum, 
                                                       corr, r_square, scorr, rmse))
         freqinfo_t.append(freqtmp)
     freqinfo_t_comb = dict()

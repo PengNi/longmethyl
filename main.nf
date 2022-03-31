@@ -252,7 +252,8 @@ process Untar {
     path ch_utils
 
     output:
-    path "${fast5_tar.baseName}.untar", emit:untar,  optional: true
+    path "${fast5_tar.baseName}.untar", emit:untar, optional: true
+    path "${fast5_tar.baseName}.fake", emit:fake, optional: true
 
     script:
     cores = task.cpus
@@ -304,6 +305,8 @@ process Untar {
             fi
         fi
 
+        mkdir -p ${fast5_tar.baseName}.fake
+
         echo "### Untar DONE"
         """
     } else {
@@ -344,6 +347,8 @@ process Untar {
             fi
         fi
 
+        mkdir -p ${fast5_tar.baseName}.fake
+
         echo "### Untar DONE"
         """
     }
@@ -362,8 +367,8 @@ process Basecall {
     output:
     path "${fast5_dir.baseName}.basecalled",    emit: basecall
 
-    //when:
-    //params.runBasecall
+    when:
+    params.runBasecall
 
     script:
     cores = task.cpus
@@ -394,12 +399,12 @@ process Basecall {
         #    --num_callers ${cores} \
         #    --fast5_out --compress_fastq\
         #    --verbose_logs  \${gpuOptions} &>> ${params.dsname}.${fast5_dir.baseName}.Basecall.run.log
-        guppy_basecaller --input_path ${fast5_dir} \
+        guppy_basecaller --input_path ${fast5_dir} -r \
             --save_path "${fast5_dir.baseName}.basecalled" \
             --config ${params.GUPPY_BASECALL_MODEL} \
             --num_callers ${cores} \
             --compress_fastq \
-            --verbose_logs  \${gpuOptions} &>> ${params.dsname}.${fast5_dir.baseName}.Basecall.run.log
+            --verbose_logs \${gpuOptions} &>> ${params.dsname}.${fast5_dir.baseName}.Basecall.run.log
     elif [[ ${params.runResquiggle} == true && ${params.runTomboanno} == true ]] ; then
         ## Just use user's basecalled input
         # cp -rf ${fast5_dir}/* ${fast5_dir.baseName}.basecalled/
@@ -498,7 +503,7 @@ process Resquiggle {
         if ls ${basecallIndir}/batch_basecall_combine_fq_*.fq.gz 1> /dev/null 2>&1; then
             gunzip -c ${basecallIndir}/batch_basecall_combine_fq_*.fq.gz > ${basecallIndir.baseName}.resquiggle/batch_basecall_combine_fq.all.fq
         else
-            echo -e "Maybe you should set runBasecall as true!"
+            echo -e "Maybe you should set runBasecall as true, or set runTomboanno as false!"
             exit 1
         fi
         tombo preprocess annotate_raw_with_fastqs\
@@ -676,20 +681,53 @@ process DeepSignalEval {
     ## gunzip CpG.gz.bismark.zero.cov.gz
     ## python ~/path/to/src/bedcov2bedmethyl.py --cov CpG.gz.bismark.zero.cov --genome /path/to/genome.fa
     
-    echo "### prepare bs file for comparison"
-    bscmpfile="${params.dsname}_${bs_bedmethyl.baseName}_ready_for_cmp.bed"
     echo ${params.dsname}
+    echo "### prepare files for comparison"
     
-    if [[ ${params.comb_strands} == true ]] ; then
-        python utils/comb_two_strands_of_rmet.py --report_fp ${bs_bedmethyl} \
-            --rtype bedmethyl --out \${bscmpfile}
+    if [[ "${site_gz}" == *.bed.gz || "${site_gz}" == *.bed ]]; then
+        ontcmpfile="${params.dsname}_${site_gz.baseName}_ready_for_cmp.bed"
+    else
+        ontcmpfile="${params.dsname}_${site_gz.baseName}_ready_for_cmp.freq.txt"
+    fi
+    
+    if [[ "${site_gz}" == *.gz ]]; then
+        gunzip -c ${site_gz} > \${ontcmpfile}
+    else
+        cp -rf ${site_gz} \${ontcmpfile}
+    fi
+    
+    bscmpfile="${params.dsname}_${bs_bedmethyl.baseName}_ready_for_cmp.bed"
+    if [[ "${bs_bedmethyl}" == *.gz ]]; then
+        gunzip -c ${bs_bedmethyl} > \${bscmpfile}
     else
         cp -rf ${bs_bedmethyl} \${bscmpfile}
+    fi
+
+    if [[ ${params.comb_strands} == true ]] ; then
+        python utils/comb_two_strands_of_rmet.py --report_fp \${bscmpfile} \
+            --rtype bedmethyl --out \${bscmpfile}_temp
+        mv \${bscmpfile}_temp \${bscmpfile}
+        
+        if [[ "\${ontcmpfile}" == *.bed ]]; then
+            python utils/comb_two_strands_of_rmet.py --report_fp \${ontcmpfile} \
+                --rtype bedmethyl --out \${ontcmpfile}_temp
+        else
+            python utils/comb_two_strands_of_rmet.py --report_fp \${ontcmpfile} \
+                --rtype freqtxt --out \${ontcmpfile}_temp
+        fi
+        mv \${ontcmpfile}_temp \${ontcmpfile}
     fi
 
     if [[ ${params.eval_fwd_only} == true ]] ; then
         awk -F'\t' '\$6 == "+"' \${bscmpfile} > \${bscmpfile}_temp
         mv \${bscmpfile}_temp \${bscmpfile}
+        
+        if [[ "\${ontcmpfile}" == *.bed ]]; then
+            awk -F'\t' '\$6 == "+"' \${ontcmpfile} > \${ontcmpfile}_temp
+        else
+            awk -F'\t' '\$3 == "+"' \${ontcmpfile} > \${ontcmpfile}_temp
+        fi
+        mv \${ontcmpfile}_temp \${ontcmpfile}
     fi
 
     echo "### compare with bs"
@@ -697,9 +735,12 @@ process DeepSignalEval {
     bash utils/eval_deepsignal_readlevel.sh \${bscmpfile} ${read_gz} \
         ${params.dsname} ${params.dsname}_deepsignal_eval_readlevel.txt
 
-    bash utils/eval_deepsignal_genomelevel.sh \${bscmpfile} ${site_gz} \
+    bash utils/eval_deepsignal_genomelevel.sh \${bscmpfile} \${ontcmpfile} \
         ${params.dsname}_deepsignal_eval_genomelevel.forplot.txt \
         ${params.dsname}_deepsignal_eval_genomelevel.txt
+
+    # rm \${bscmpfile}
+    # rm \${ontcmpfile}
 
     echo "### DeepSignal eval DONE"
     """
@@ -740,15 +781,24 @@ workflow {
     Basecall(Untar.out.untar)
 
     // Resquiggle running if use Tombo or DeepSignal
-    Resquiggle(Untar.out.untar, Basecall.out.basecall, EnvCheck.out.reference_genome)
+    if (params.runBasecall) {
+        Resquiggle(Untar.out.untar, Basecall.out.basecall, EnvCheck.out.reference_genome)
+    }
+    else {
+        Resquiggle(Untar.out.untar, Untar.out.fake, EnvCheck.out.reference_genome)
+    }
 
     if (params.runDeepSignal) {
         if (params.runResquiggle){
             DeepSignal(Untar.out.untar, Resquiggle.out.resquiggle, 
                        EnvCheck.out.deepsignal_model)
         }
-        else {
+        else if (params.runBasecall) {
             DeepSignal(Untar.out.untar, Basecall.out.basecall, 
+                       EnvCheck.out.deepsignal_model)
+        }
+        else {
+            DeepSignal(Untar.out.untar, Untar.out.fake, 
                        EnvCheck.out.deepsignal_model)
         }
         comb_deepsignal = DeepSignalFreq(DeepSignal.out.deepsignal_out.collect(), ch_utils, ch_src)

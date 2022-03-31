@@ -15,12 +15,12 @@ if [ ${sort} == true ] ; then
     PYTHONPATH=src python src/call_modification_frequency.py \
         --input_path ${callfn} \
         --result_file ${dsname}_${toolname}_sitemods_freq.bed \
-        --bed --sort > ${dsname}_${toolname}_sitemods_freq.bed.log 2>&1
+        --bed --sort --prob_cf 0.0 > ${dsname}_${toolname}_sitemods_freq.bed.log 2>&1
 else
     PYTHONPATH=src python src/call_modification_frequency.py \
         --input_path ${callfn} \
         --result_file ${dsname}_${toolname}_sitemods_freq.bed \
-        --bed > ${dsname}_${toolname}_sitemods_freq.bed.log 2>&1
+        --bed --prob_cf 0.0 > ${dsname}_${toolname}_sitemods_freq.bed.log 2>&1
 fi
 gzip -f ${dsname}_${toolname}_sitemods_freq.bed > ${dsname}_${toolname}_sitemods_freq.bed.gz
 rm ${dsname}_${toolname}_sitemods_freq.bed
