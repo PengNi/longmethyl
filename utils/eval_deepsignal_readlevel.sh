@@ -33,16 +33,16 @@ python src/filter_call_mods_by_positions.py \
 # eval read level
 # depth_cf is not needed for ont data, but need to set it a value as it is a required arg 
 python src/eval_at_read_level.py \
-    --unmethylated ${hc_pos_in_reads} \
+    --unmethylated ${hc_neg_in_reads} \
     --methylated ${hc_pos_in_reads} \
     --depth_cf -1 --prob_cf 0 \
     --result_file ${result_file} \
     --ont
 
 # clean tmp files
-# rm ${hc_pos_file}
-# rm ${hc_neg_file}
-# rm ${hc_pos_in_reads}
-# rm ${hc_neg_in_reads}
+rm ${hc_pos_file}
+rm ${hc_neg_file}
+rm ${hc_pos_in_reads}
+rm ${hc_neg_in_reads}
 
 echo "#### eval deepsignal at read level, DONE"

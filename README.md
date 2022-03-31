@@ -238,4 +238,4 @@ developement: [nextflow_develop.md](docs/nextflow_develop.md)
 - add deepsignal2
 - multi_to\_single step
 - ~~vbz issue~~
-- update deepsignal?
+- ~~update deepsignal?~~
