@@ -16,5 +16,5 @@ dependencies:
   - scikit-learn
   - ont-tombo=1.5.1
   - pip:
-    - deepsignal==0.1.10
+    - deepsignal==0.2.0
     - tensorflow-gpu==1.13.1  # cuda10.0

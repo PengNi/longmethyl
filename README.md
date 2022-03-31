@@ -83,7 +83,7 @@ nextflow run ~/tools/longmethyl -profile singularity \
     --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
 # or
 nextflow run ~/tools/longmethyl -profile singularity \
-    --singularity_name local_singularity_cache/nipengcsu-longmethyl-0.1.img \
+    --singularity_name local_singularity_cache/nipengcsu-longmethyl-0.2.img \
     --dsname test \
     --genome GCF_000146045.2_R64_genomic.fna \
     --input fast5s.al.demo/ \
@@ -94,11 +94,11 @@ The singularity image can be also pulled before running the cmd. The pulled `.si
 
 ```sh
 # pull singularity image (once for all). There will be a .sif file. 
-singularity pull docker://nipengcsu/longmethyl:0.1
+singularity pull docker://nipengcsu/longmethyl:0.2
 
 # run longmethyl
 nextflow run ~/tools/longmethyl -profile singularity \
-    --singularity_name longmethyl_0.1.sif \
+    --singularity_name longmethyl_0.2.sif \
     --dsname test \
     --genome GCF_000146045.2_R64_genomic.fna \
     --input fast5s.al.demo/ \
@@ -112,7 +112,7 @@ nextflow run ~/tools/longmethyl -profile singularity \
 It is better to pull docker image before running pipeline the first time, cause this may be time-consuming and there may be network issues. However, this step is not necessary, the image will be pulled automatically when running the pipeline the first time.
 
 ```sh
-docker pull nipengcsu/longmethyl:0.1
+docker pull nipengcsu/longmethyl:0.2
 ```
 
   - (2) Run longmethyl using `-profile docker`.

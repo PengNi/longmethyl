@@ -539,7 +539,6 @@ process DeepSignal {
     input:
     path indir
     path fake_dir
-    each path(reference_genome)
     each path(deepsignal_model_dir)
 
     output:
@@ -569,7 +568,6 @@ process DeepSignal {
             --input_path ${indir} \
             --model_path "\${DeepSignalModelBaseDir}/${params.DEEPSIGNAL_MODEL_DIR}/${params.DEEPSIGNAL_MODEL}" \
             --result_file \${outFile} \
-            --reference_path ${referenceGenome} \
             --corrected_group ${params.ResquiggleCorrectedGroup} \
             --nproc $cores \
             --is_gpu no   &>> ${params.dsname}.${indir.baseName}.DeepSignal.run.log
@@ -579,7 +577,6 @@ process DeepSignal {
             --input_path ${indir} \
             --model_path "\${DeepSignalModelBaseDir}/${params.DEEPSIGNAL_MODEL_DIR}/${params.DEEPSIGNAL_MODEL}" \
             --result_file \${outFile} \
-            --reference_path ${referenceGenome} \
             --corrected_group ${params.ResquiggleCorrectedGroup} \
             --nproc $cores \
             --is_gpu yes  &>> ${params.dsname}.${indir.baseName}.DeepSignal.run.log
@@ -748,11 +745,11 @@ workflow {
     if (params.runDeepSignal) {
         if (params.runResquiggle){
             DeepSignal(Untar.out.untar, Resquiggle.out.resquiggle, 
-                   EnvCheck.out.reference_genome, EnvCheck.out.deepsignal_model)
+                       EnvCheck.out.deepsignal_model)
         }
         else {
             DeepSignal(Untar.out.untar, Basecall.out.basecall, 
-                   EnvCheck.out.reference_genome, EnvCheck.out.deepsignal_model)
+                       EnvCheck.out.deepsignal_model)
         }
         comb_deepsignal = DeepSignalFreq(DeepSignal.out.deepsignal_out.collect(), ch_utils, ch_src)
         s3 = comb_deepsignal.site_unify

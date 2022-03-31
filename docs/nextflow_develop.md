@@ -66,9 +66,9 @@ cd longmethyl/
 # run docker build
 docker build .
 # or add tags
-docker build -t nipengcsu/longmethyl:0.1 .
+docker build -t nipengcsu/longmethyl:0.2 .
 # push to dockerhub [create repo in docker hub first, and login required]
-docker push nipengcsu/longmethyl:0.1
+docker push nipengcsu/longmethyl:0.2
 ```
 
 示例：
