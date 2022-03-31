@@ -224,7 +224,7 @@ CUDA_VISIBLE_DEVICES=0 nextflow run ~/tools/longmethyl -profile conda \
 developement: [nextflow_develop.md](docs/nextflow_develop.md)
 
 ## TODO
-- add summmary
+- add summary
 - ~~test case with no basecall/resquiggle steps~~
 - ~~`--fast5out` not necessary in basecall; tombo-anno split from tombo-resquiggle, and make it optional~~
 - ~~dockerfile~~
@@ -238,3 +238,4 @@ developement: [nextflow_develop.md](docs/nextflow_develop.md)
 - add deepsignal2
 - multi_to\_single step
 - ~~vbz issue~~
+- update deepsignal?

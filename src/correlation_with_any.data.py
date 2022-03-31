@@ -87,7 +87,7 @@ def _cal_corr_of_rmet1_and_rmet2(freqinfo1, freqinfo2):
         rmet2.append(freqinfo2[ktmp])
     rmet1 = np.array(rmet1)
     rmet2 = np.array(rmet2)
-    if len(rmet1) > 0 and len(rmet2) > 0:
+    if len(rmet1) > 1 and len(rmet2) > 1:
         corr, pvalue = scipy.stats.pearsonr(rmet1, rmet2)
         scorr, _ = scipy.stats.spearmanr(rmet1, rmet2)  # spearman
         _, _, r_value, _, _ = scipy.stats.linregress(rmet1, rmet2)

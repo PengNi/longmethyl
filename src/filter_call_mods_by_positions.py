@@ -32,7 +32,7 @@ def main():
                         help="the directory of position file, per line: chromosome\tpos_in_forward_strand",
                         type=str, required=True)
     parser.add_argument('--wfile', type=str, required=True, help="write path")
-    parser.add_argument('--maxnum', type=str, required=False, default="1000000")
+    parser.add_argument('--maxnum', type=int, required=False, default=1000000)
 
     args = parser.parse_args()
     cm_fps = args.cm_path

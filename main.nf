@@ -153,6 +153,8 @@ if (params.input.endsWith(".filelist.txt")) {
 
 if (params.eval_methcall) {
     bs_bedmethyl_file = Channel.fromPath(params.bs_bedmethyl,  type: 'file', checkIfExists: true)
+} else {
+    bs_bedmethyl_file = Channel.empty()
 }
 
 
@@ -463,7 +465,7 @@ process Basecall {
 process Resquiggle {
     tag "${basecallIndir}"
 
-    label 'process_high'
+    label 'process_medium'
 
     input:
     path    fast5_dir
@@ -478,7 +480,6 @@ process Resquiggle {
 
     script:
     cores = task.cpus
-    samtools_cores = task.cpus
     resquiggle_cores = (task.cpus).intValue()
     
     """
@@ -490,7 +491,7 @@ process Resquiggle {
     # cp -f ${basecallIndir}/${basecallIndir.baseName}-sequencing_summary.txt  \
     #     ${basecallIndir.baseName}.resquiggle/
     # find ${basecallIndir}/workspace -name '*.fast5' -type f| \
-    #     parallel -j${cores}  \
+    #     parallel -j${cores} \
     #     'cp {}   ${basecallIndir.baseName}.resquiggle/workspace/'
     # echo '### Duplicate from basecall DONE'
     if [[ ${params.runTomboanno} == true ]] ; then
@@ -506,7 +507,7 @@ process Resquiggle {
             --sequencing-summary-filenames ${basecallIndir}/${basecallIndir.baseName}-sequencing_summary.txt \
             --basecall-group ${params.BasecallGroupName}\
             --basecall-subgroup ${params.BasecallSubGroupName}\
-            --overwrite --processes  ${samtools_cores} \
+            --overwrite --processes  ${cores} \
             &>> ${params.dsname}.${basecallIndir.baseName}.Resquiggle.run.log
         rm -rf ${basecallIndir.baseName}.resquiggle/batch_basecall_combine_fq.all.fq
         echo '### tombo preprocess DONE'
@@ -597,6 +598,8 @@ process DeepSignal {
 process DeepSignalFreq {
     tag "${params.dsname}"
 
+    label 'process_medium'
+
     publishDir "${params.outdir}/${params.dsname}-ds",
         mode: "copy",
         pattern: "${params.dsname}_deepsignal_per_read_combine.*.gz",
@@ -646,6 +649,8 @@ process DeepSignalFreq {
 process DeepSignalEval {
     tag "${params.dsname}"
 
+    label 'process_medium'
+
     publishDir "${params.outdir}/${params.dsname}-ds",
         mode: "copy", pattern: "${params.dsname}_deepsignal_eval_readlevel.txt"
     publishDir "${params.outdir}/${params.dsname}-ds",
@@ -670,9 +675,9 @@ process DeepSignalEval {
     """
     ## users should prepare a bedmethyl file as input
     ## convert human bismark cov file to bedmethyl as example as follows, 
-    ## get a "CpG.gz.bismark.zero.cov.bed" file
+    ## to get a "CpG.gz.bismark.zero.cov.bed" file:
     ## gunzip CpG.gz.bismark.zero.cov.gz
-    ## python3 ~/path/to/src/bedcov2bedmethyl.py --cov CpG.gz.bismark.zero.cov --genome /path/to/genome.fa
+    ## python ~/path/to/src/bedcov2bedmethyl.py --cov CpG.gz.bismark.zero.cov --genome /path/to/genome.fa
     
     echo "### prepare bs file for comparison"
     bscmpfile="${params.dsname}_${bs_bedmethyl.baseName}_ready_for_cmp.bed"

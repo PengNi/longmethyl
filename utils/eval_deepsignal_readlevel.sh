@@ -40,9 +40,9 @@ python src/eval_at_read_level.py \
     --ont
 
 # clean tmp files
-rm ${hc_pos_file}
-rm ${hc_neg_file}
-rm ${hc_pos_in_reads}
-rm ${hc_neg_in_reads}
+# rm ${hc_pos_file}
+# rm ${hc_neg_file}
+# rm ${hc_pos_in_reads}
+# rm ${hc_neg_in_reads}
 
 echo "#### eval deepsignal at read level, DONE"
