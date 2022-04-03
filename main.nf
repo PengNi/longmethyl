@@ -358,7 +358,7 @@ process Untar {
 process Basecall {
     tag "${fast5_dir}"
 
-    label 'process_medium'
+    label 'process_medium_longtime'
 
     input:
     path fast5_dir
@@ -392,12 +392,25 @@ process Basecall {
 
     if [[ ${params.runBasecall} == true ]] ; then
         ## CPU/GPU version command
-        guppy_basecaller --input_path ${fast5_dir} -r \
-            --save_path "${fast5_dir.baseName}.basecalled" \
-            --config ${params.GUPPY_BASECALL_MODEL} \
-            --num_callers ${cores} \
-            --compress_fastq \
-            \${gpuOptions} &>> ${params.dsname}.${fast5_dir.baseName}.Basecall.run.log
+        if [[ \${commandType} == "cpu" ]]; then
+            guppy_basecaller --input_path ${fast5_dir} -r \
+                --save_path "${fast5_dir.baseName}.basecalled" \
+                --config ${params.GUPPY_BASECALL_MODEL} \
+                --num_callers ${cores} \
+                --compress_fastq \
+                \${gpuOptions} &>> ${params.dsname}.${fast5_dir.baseName}.Basecall.run.log
+        elif [[ \${commandType} == "gpu" ]]; then
+            guppy_basecaller --input_path ${fast5_dir} -r \
+                --save_path "${fast5_dir.baseName}.basecalled" \
+                --config ${params.GUPPY_BASECALL_MODEL} \
+                --gpu_runners_per_device 2 \
+                --chunks_per_runner 2500 \
+                --compress_fastq \
+                \${gpuOptions} &>> ${params.dsname}.${fast5_dir.baseName}.Basecall.run.log
+        else
+            echo "### error value for commandType=\${commandType}"
+            exit 255
+        fi
     elif [[ ${params.runResquiggle} == true && ${params.runTomboanno} == true ]] ; then
         ## Just use user's basecalled input
         # cp -rf ${fast5_dir}/* ${fast5_dir.baseName}.basecalled/
@@ -463,7 +476,7 @@ process Basecall {
 process Resquiggle {
     tag "${basecallIndir}"
 
-    label 'process_medium'
+    label 'process_medium_longtime'
 
     input:
     path    fast5_dir
@@ -797,13 +810,10 @@ workflow {
                        EnvCheck.out.deepsignal_model, ch_utils)
         }
         comb_deepsignal = DeepSignalFreq(DeepSignal.out.deepsignal_out.collect(), ch_utils, ch_src)
-        s3 = comb_deepsignal.site_unify
         DeepSignalEval(comb_deepsignal.deepsignal_combine_out, 
                        comb_deepsignal.site_unify, 
                        bs_bedmethyl_file, 
                        ch_utils, ch_src)
-    } else {
-        s3 = Channel.empty()
     }
 
 }
