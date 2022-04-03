@@ -116,9 +116,9 @@ if (params.genome.contains('hg') || params.genome.contains('GRCh38') || params.g
         if (!file(params.genome+".contig_names.txt").exists()){
             // exit 1, "Missing --chrSet option for other reference genome, please specify chromosomes used in reference genome [${params.genome}], or use utils/extract_contig_names_from_fasta.py to create one"
         } else {
-            Channel.fromPath( params.genome+".contig_names.txt", type: 'file', checkIfExists: true )
-            .first(String)
-            .set{chrSet}
+            //Channel.fromPath( params.genome+".contig_names.txt", type: 'file', checkIfExists: true )
+            //.first(String)
+            //.set{chrSet}
         }
         
     }
@@ -127,6 +127,19 @@ if (params.genome.contains('hg') || params.genome.contains('GRCh38') || params.g
     }
 }
 
+// set utils/src dirs 
+projectDir = workflow.projectDir
+// ch_utils = Channel.fromPath("${projectDir}/utils",  type: 'dir', followLinks: false)
+// ch_src   = Channel.fromPath("${projectDir}/src",  type: 'dir', followLinks: false)
+ch_utils = Channel.value("${projectDir}/utils")
+ch_src   = Channel.value("${projectDir}/src")
+
+if (params.eval_methcall) {
+    // bs_bedmethyl_file = Channel.fromPath(params.bs_bedmethyl,  type: 'file', checkIfExists: true)
+    bs_bedmethyl_file = Channel.value(params.bs_bedmethyl)
+} else {
+    bs_bedmethyl_file = Channel.empty()
+}
 
 // Collect all folders of fast5 files, and send into Channels for pipelines
 if (params.input.endsWith(".filelist.txt")) {
@@ -151,17 +164,8 @@ if (params.input.endsWith(".filelist.txt")) {
     Channel.fromPath( params.input, checkIfExists: true ).set{ fast5_tar_ch }
 }
 
-if (params.eval_methcall) {
-    bs_bedmethyl_file = Channel.fromPath(params.bs_bedmethyl,  type: 'file', checkIfExists: true)
-} else {
-    bs_bedmethyl_file = Channel.empty()
-}
 
 
-// set utils/src dirs 
-projectDir = workflow.projectDir
-ch_utils = Channel.fromPath("${projectDir}/utils",  type: 'dir', followLinks: false)
-ch_src   = Channel.fromPath("${projectDir}/src",  type: 'dir', followLinks: false)
 
 
 // TODO: set summary
@@ -404,7 +408,6 @@ process Basecall {
                 --save_path "${fast5_dir.baseName}.basecalled" \
                 --config ${params.GUPPY_BASECALL_MODEL} \
                 --gpu_runners_per_device 2 \
-                --chunks_per_runner 2500 \
                 --compress_fastq \
                 \${gpuOptions} &>> ${params.dsname}.${fast5_dir.baseName}.Basecall.run.log
         else
@@ -773,7 +776,8 @@ workflow {
 
     if (! params.runDeepSignal) {
         // use null placeholder
-        deepsignalDir = Channel.fromPath("${projectDir}/utils/null2", type: 'any', checkIfExists: true)
+        // deepsignalDir = Channel.fromPath("${projectDir}/utils/null2", type: 'any', checkIfExists: true)
+        deepsignalDir = Channel.value("${projectDir}/utils/null2")
     }
     else {
         // User provide the dir

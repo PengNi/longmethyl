@@ -239,4 +239,4 @@ developement: [nextflow_develop.md](docs/nextflow_develop.md)
 - multi_to\_single step
 - ~~vbz issue~~
 - ~~update deepsignal?~~
-- try filelist, see if it can run in parallel, learn more nextflow
+- try filelist/multi_inputs, modify code to enable running in parallel; learn more; how to enable parallel and aviod copying files many times at the same time
