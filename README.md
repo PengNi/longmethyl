@@ -234,9 +234,9 @@ developement: [nextflow_develop.md](docs/nextflow_develop.md)
 - how to set a default deepsignal model 
 - ~~result_summary\_statistics/for visualization?~~
 - add test demo, including benchmark and evaluation
-- test a 20x/40x hg002 dataset
+- test a 20x hg002 dataset
 - add deepsignal2
-- multi_to\_single step
+- add multi_to\_single step
 - ~~vbz issue~~
 - ~~update deepsignal?~~
 - try filelist/multi_inputs, modify code to enable running in parallel; learn more; how to enable parallel and aviod copying files many times at the same time
