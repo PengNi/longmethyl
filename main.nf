@@ -135,8 +135,8 @@ ch_utils = Channel.value("${projectDir}/utils")
 ch_src   = Channel.value("${projectDir}/src")
 
 if (params.eval_methcall) {
-    // bs_bedmethyl_file = Channel.fromPath(params.bs_bedmethyl,  type: 'file', checkIfExists: true)
-    bs_bedmethyl_file = Channel.value(params.bs_bedmethyl)
+    bs_bedmethyl_file = Channel.fromPath(params.bs_bedmethyl,  type: 'file', checkIfExists: true)
+    // bs_bedmethyl_file = Channel.value(params.bs_bedmethyl)
 } else {
     bs_bedmethyl_file = Channel.empty()
 }
@@ -176,7 +176,7 @@ summary['input']            = params.input
 // Reference genome
 def referenceGenome = 'reference_genome/ref.fasta'
 
-// Check all tools work well; from nanome
+// Check all tools work well
 process EnvCheck {
     tag "envcheck"
     errorStrategy 'terminate'
@@ -369,6 +369,7 @@ process Basecall {
 
     output:
     path "${fast5_dir.baseName}.basecalled",    emit: basecall
+    path "${fast5_dir.baseName}.raw",    emit: raw
 
     when:
     params.runBasecall
@@ -470,6 +471,8 @@ process Basecall {
         mv ${fast5_dir.baseName}.basecalled/sequencing_summary.txt \
             ${fast5_dir.baseName}.basecalled/${fast5_dir.baseName}-sequencing_summary.txt
     fi
+
+    ln -s `realpath ${fast5_dir}` ${fast5_dir.baseName}.raw
     echo "### Basecalled by Guppy DONE"
     """
 }
@@ -489,6 +492,7 @@ process Resquiggle {
 
     output:
     path "${basecallIndir.baseName}.resquiggle",    emit: resquiggle
+    path "${fast5_dir.baseName}.tombo.raw",    emit: raw
 
     when:
     params.runResquiggle
@@ -535,7 +539,8 @@ process Resquiggle {
         --ignore-read-locks ${params.tomboResquiggleOptions ? params.tomboResquiggleOptions : ''} \
         --overwrite \
         ${fast5_dir} \
-        ${referenceGenome} &>> ${params.dsname}.${basecallIndir.baseName}.Resquiggle.run.log  
+        ${referenceGenome} &>> ${params.dsname}.${basecallIndir.baseName}.Resquiggle.run.log
+    ln -s `realpath ${fast5_dir}` ${fast5_dir.baseName}.tombo.raw
     echo '### tombo resquiggle DONE'
     """
 }
@@ -553,7 +558,6 @@ process DeepSignal {
 
     input:
     path indir
-    path fake_dir
     each path(deepsignal_model_dir)
     path ch_utils
 
@@ -692,7 +696,7 @@ process DeepSignalEval {
     ## gunzip CpG.gz.bismark.zero.cov.gz
     ## python ~/path/to/src/bedcov2bedmethyl.py --cov CpG.gz.bismark.zero.cov --genome /path/to/genome.fa
     
-    echo ${params.dsname}
+    echo "${params.dsname}"
     echo "### prepare files for comparison"
     
     if [[ "${site_gz}" == *.bed.gz || "${site_gz}" == *.bed ]]; then
@@ -792,9 +796,9 @@ workflow {
 
     Basecall(Untar.out.untar)
 
-    // Resquiggle running if use Tombo or DeepSignal
+    // Resquiggle running
     if (params.runBasecall) {
-        Resquiggle(Untar.out.untar, Basecall.out.basecall, EnvCheck.out.reference_genome, ch_utils)
+        Resquiggle(Basecall.out.raw, Basecall.out.basecall, EnvCheck.out.reference_genome, ch_utils)
     }
     else {
         Resquiggle(Untar.out.untar, Untar.out.fake, EnvCheck.out.reference_genome, ch_utils)
@@ -802,15 +806,15 @@ workflow {
 
     if (params.runDeepSignal) {
         if (params.runResquiggle){
-            DeepSignal(Untar.out.untar, Resquiggle.out.resquiggle, 
+            DeepSignal(Resquiggle.out.raw, 
                        EnvCheck.out.deepsignal_model, ch_utils)
         }
         else if (params.runBasecall) {
-            DeepSignal(Untar.out.untar, Basecall.out.basecall, 
+            DeepSignal(Basecall.out.raw,  
                        EnvCheck.out.deepsignal_model, ch_utils)
         }
         else {
-            DeepSignal(Untar.out.untar, Untar.out.fake, 
+            DeepSignal(Untar.out.untar, 
                        EnvCheck.out.deepsignal_model, ch_utils)
         }
         comb_deepsignal = DeepSignalFreq(DeepSignal.out.deepsignal_out.collect(), ch_utils, ch_src)

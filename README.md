@@ -218,6 +218,20 @@ CUDA_VISIBLE_DEVICES=0 nextflow run ~/tools/longmethyl -profile conda \
     --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
 ```
 
+
+### Option 4. resecu a run
+Try `-resume` to re-run a failed job to save time:
+
+```shell
+nextflow run ~/tools/longmethyl -profile singularity \
+    --dsname test \
+    --genome GCF_000146045.2_R64_genomic.fna \
+    --input fast5s.al.demo/ \
+    --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz \
+    -resume
+```
+
+
 ## Acknowledgements
   - Some code were taken from [nanome](https://github.com/TheJacksonLaboratory/nanome) and [nf-core](https://github.com/nf-core).
 
@@ -239,4 +253,4 @@ developement: [nextflow_develop.md](docs/nextflow_develop.md)
 - add multi_to\_single step
 - ~~vbz issue~~
 - ~~update deepsignal?~~
-- try filelist/multi_inputs, modify code to enable running in parallel; learn more; how to enable parallel and aviod copying files many times at the same time
+- ~~try filelist/multi_inputs, modify code to enable running in parallel; learn more; how to enable parallel and aviod copying files many times at the same time~~
