@@ -362,7 +362,7 @@ process Untar {
 process Basecall {
     tag "${fast5_dir}"
 
-    label 'process_medium_longtime'
+    label 'process_guppy'
 
     input:
     path fast5_dir
@@ -482,7 +482,7 @@ process Basecall {
 process Resquiggle {
     tag "${basecallIndir}"
 
-    label 'process_medium_longtime'
+    label 'process_tombo'
 
     input:
     path    fast5_dir
@@ -492,7 +492,7 @@ process Resquiggle {
 
     output:
     path "${basecallIndir.baseName}.resquiggle",    emit: resquiggle
-    path "${fast5_dir.baseName}.tombo.raw",    emit: raw
+    path "${fast5_dir.baseName}.tombo_raw",    emit: raw
 
     when:
     params.runResquiggle
@@ -550,7 +550,7 @@ process Resquiggle {
 process DeepSignal {
     tag "${indir}"
 
-    label 'process_high'
+    label 'process_deepsignal'
 
     publishDir "${params.outdir}/${params.dsname}_intermediate/deepsignal",
         mode: "copy",

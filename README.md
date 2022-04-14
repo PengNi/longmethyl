@@ -219,7 +219,7 @@ CUDA_VISIBLE_DEVICES=0 nextflow run ~/tools/longmethyl -profile conda \
 ```
 
 
-### Option 4. resecu a run
+### Option 4. Resume a run
 Try `-resume` to re-run a failed job to save time:
 
 ```shell
@@ -254,3 +254,4 @@ developement: [nextflow_develop.md](docs/nextflow_develop.md)
 - ~~vbz issue~~
 - ~~update deepsignal?~~
 - ~~try filelist/multi_inputs, modify code to enable running in parallel; learn more; how to enable parallel and aviod copying files many times at the same time~~
+- Does nextflow support cross-processes parallel (when processes have relationships in a DAG: like untar->basecall)?
