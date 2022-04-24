@@ -131,3 +131,8 @@ deepsignal流程需准备：fast5 files, genome fasta, model.ckpt
 #### (7) preprocess of Nanocompore (ONT-DRS-m6A; nextflow)
   - [Nanocompore-GitHub](https://github.com/tleonardi/nanocompore)
   - [Nanocompore-ncomm-paper](https://www.nature.com/articles/s41467-021-27393-3)
+
+
+### 6 其他参考
+  - [Reproducible, scalable, and shareable analysis workflows with Nextflow](https://sateeshperi.github.io/nextflow_varcal/nextflow/)
+
