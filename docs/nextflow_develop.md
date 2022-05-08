@@ -8,6 +8,7 @@
 * [3 nextflow流程开发](#3-nextflow流程开发)
 * [4 测试](#4-测试)
 * [5 基因组流程参考](#5-基因组流程参考)
+* [6 其他参考](#6-其他参考)
 
 
 ### 1 nextflow流程目标用户
@@ -134,5 +135,6 @@ deepsignal流程需准备：fast5 files, genome fasta, model.ckpt
 
 
 ### 6 其他参考
+  - Wratten, L., Wilm, A. & Göke, J. Reproducible, scalable, and shareable analysis pipelines with bioinformatics workflow managers. Nat Methods 18, 1161–1168 (2021). DOI: [https://doi.org/10.1038/s41592-021-01254-9](https://doi.org/10.1038/s41592-021-01254-9)
   - [Reproducible, scalable, and shareable analysis workflows with Nextflow](https://sateeshperi.github.io/nextflow_varcal/nextflow/)
 
