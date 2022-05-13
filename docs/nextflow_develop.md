@@ -137,4 +137,4 @@ deepsignal流程需准备：fast5 files, genome fasta, model.ckpt
 ### 6 其他参考
   - Wratten, L., Wilm, A. & Göke, J. Reproducible, scalable, and shareable analysis pipelines with bioinformatics workflow managers. Nat Methods 18, 1161–1168 (2021). DOI: [https://doi.org/10.1038/s41592-021-01254-9](https://doi.org/10.1038/s41592-021-01254-9)
   - [Reproducible, scalable, and shareable analysis workflows with Nextflow](https://sateeshperi.github.io/nextflow_varcal/nextflow/)
-
+  - [Nextflow training of seqera](https://training.seqera.io/)

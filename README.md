@@ -248,7 +248,7 @@ developement: [nextflow_develop.md](docs/nextflow_develop.md)
 - how to set a default deepsignal model 
 - ~~result_summary\_statistics/for visualization?~~
 - add test demo, including benchmark and evaluation
-- test a 20x hg002 dataset
+- ~~test a 20x hg002 dataset~~
 - add deepsignal2
 - add multi_to\_single step
 - ~~vbz issue~~
