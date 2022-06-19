@@ -540,7 +540,7 @@ process Resquiggle {
         --overwrite \
         ${fast5_dir} \
         ${referenceGenome} &>> ${params.dsname}.${basecallIndir.baseName}.Resquiggle.run.log
-    ln -s `realpath ${fast5_dir}` ${fast5_dir.baseName}.tombo.raw
+    ln -s `realpath ${fast5_dir}` ${fast5_dir.baseName}.tombo_raw
     echo '### tombo resquiggle DONE'
     """
 }
