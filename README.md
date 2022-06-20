@@ -255,3 +255,4 @@ developement: [nextflow_develop.md](docs/nextflow_develop.md)
 - ~~update deepsignal?~~
 - ~~try filelist/multi_inputs, modify code to enable running in parallel; learn more; how to enable parallel and aviod copying files many times at the same time~~
 - Does nextflow support cross-processes parallel (when processes have relationships in a DAG: like untar->basecall)?
+- add visualization (Rmarkdown/html?)
