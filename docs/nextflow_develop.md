@@ -7,7 +7,7 @@
 * [2 开发流程需要准备](#2-开发流程需要准备)
 * [3 nextflow流程开发](#3-nextflow流程开发)
 * [4 测试](#4-测试)
-* [5 基因组流程参考](#5-基因组流程参考)
+* [5 流程参考](#5-流程参考)
 * [6 其他参考](#6-其他参考)
 
 
@@ -102,7 +102,7 @@ deepsignal流程需准备：fast5 files, genome fasta, model.ckpt
 详见[README.md](../README.md)。
 
 
-### 5 基因组流程参考
+### 5 流程参考
 
 #### (1) nf-core (DNA-seq, RNA-seq, Chip-seq, ...; nextflow)
   - [https://nf-co.re/](https://nf-co.re/)
@@ -132,6 +132,10 @@ deepsignal流程需准备：fast5 files, genome fasta, model.ckpt
 #### (7) preprocess of Nanocompore (ONT-DRS-m6A; nextflow)
   - [Nanocompore-GitHub](https://github.com/tleonardi/nanocompore)
   - [Nanocompore-ncomm-paper](https://www.nature.com/articles/s41467-021-27393-3)
+
+#### (8) MeRIPseqPipe (MeRIP-seq-m6A; nextflow)
+  - [MeRIPseqPipe-GitHub](https://github.com/canceromics/MeRIPseqPipe)
+  - [MeRIPseqPipe-bioinformatics-paper](https://doi.org/10.1093/bioinformatics/btac025)
 
 
 ### 6 其他参考
