@@ -17,7 +17,6 @@ __Learning Nextflow__ - A demo nextflow pipeline of methylation detection using 
 
   - (2) Install nextflow.
 
-Create an environment containing nextflow/install nextflow:
 ```sh
 # create a new environment and install nextflow in it
 conda create -n nextflow -c conda-forge -c bioconda nextflow
