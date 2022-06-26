@@ -36,7 +36,7 @@ def helpMessage() {
       --dsname      Dataset/analysis name
 
     General options:
-      --outdir      Output dir, default is 'results'
+      --outdir      Output dir, default is 'longmethyl_results'
       --chrSet      Chromosomes used in analysis, default is chr1-22, X and Y, for human. For E. coli data, it is default as 'NC_000913.3'. For other reference genome, please specify each chromosome with space seperated.
       --cleanAnalyses   If clean old basecalling info in fast5 files
       --cleanup     If clean work dir after complete, default is false
