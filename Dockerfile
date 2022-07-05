@@ -25,7 +25,7 @@ ARG BUILD_PACKAGES="wget apt-transport-https procps git curl"
 ARG DEBIAN_FRONTEND="noninteractive"
 
 # Install guppy-gpu version, ref: https://github.com/GenomicParisCentre/dockerfiles
-# trial 1 (docker: cpu-T, cpu-on-gpu-T, gpu-on-gpu-F; singularity: cpu-T, cpu-on-gpu-T, gpu-on-gpu-F)
+# trial 1 (docker: cpu-T, cpu-on-gpu-T, gpu-on-gpu-F; singularity: cpu-T, cpu-on-gpu-T, gpu-on-gpu-T)
 RUN apt-get -q update && \
     DEBIAN_FRONTEND=${DEBIAN_FRONTEND} apt-get -q install --yes ${BUILD_PACKAGES} \
     libnvidia-compute-418 \

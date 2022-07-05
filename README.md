@@ -5,6 +5,7 @@ __Learning Nextflow__ - A demo nextflow pipeline of methylation detection using 
 
 ## Contents
 * [Installation](#Installation)
+* [Demo data](#Demo-data)
 * [Usage](#Usage)
 * [Acknowledgements](#Acknowledgements)
 * [TODO](#TODO)
@@ -39,6 +40,14 @@ sudo apt install graphviz
 sudo yum install graphviz
 ```
 
+## Demo data
+Check [longmethyl/demo](/demo) for demo data:
+  - _fast5_chr20.tar.gz_: 60 HG002 fast5s which aligns to human genome chr20:10000000-10100000.
+  - _chr20_demo.fa_: reference sequence of human chr20:10000000-10100000.
+  - _hg002_bsseq_chr20_demo.bed_: HG002 BS-seq results of region chr20:10000000-10100000.
+
+Check also [google drive](https://drive.google.com/open?id=1zkK8Q1gyfviWWnXUBMcIwEDw3SocJg7P) to get deepsignal CpG model-_model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz_. 
+
 ## Usage
 
 ### Option 1. Run with singularity (recommended)
@@ -52,40 +61,40 @@ conda activate nextflow
 # run longmethyl, this cmd will cache a singularity image before processing the data
 nextflow run ~/tools/longmethyl -profile singularity \
     --dsname test \
-    --genome GCF_000146045.2_R64_genomic.fna \
-    --input fast5s.al.demo/ \
+    --genome chr20_demo.fa \
+    --input fast5_chr20.tar.gz \
     --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
 # or, run longmethyl using GPU, set CUDA_VISIBLE_DEVICES
 CUDA_VISIBLE_DEVICES=0 nextflow run ~/tools/longmethyl -profile singularity \
     --dsname test \
-    --genome GCF_000146045.2_R64_genomic.fna \
-    --input fast5s.al.demo/ \
+    --genome chr20_demo.fa \
+    --input fast5_chr20.tar.gz \
     --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
 ```
 
-The downloaded `.img` file can be used then, without downloaded again:
+The downloaded `.img` file can be used then, without being downloaded again:
 
 ```sh
 # this time nextflow will not download the singularity image again, it has already
 # been in the --singularity_cache directory.
 nextflow run ~/tools/longmethyl -profile singularity \
     --dsname test \
-    --genome GCF_000146045.2_R64_genomic.fna \
-    --input fast5s.al.demo/ \
+    --genome chr20_demo.fa \
+    --input fast5_chr20.tar.gz \
     --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
 # or
 nextflow run ~/tools/longmethyl -profile singularity \
     --singularity_cache local_singularity_cache \
     --dsname test \
-    --genome GCF_000146045.2_R64_genomic.fna \
-    --input fast5s.al.demo/ \
+    --genome chr20_demo.fa \
+    --input fast5_chr20.tar.gz \
     --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
 # or
 nextflow run ~/tools/longmethyl -profile singularity \
     --singularity_name local_singularity_cache/nipengcsu-longmethyl-0.2.img \
     --dsname test \
-    --genome GCF_000146045.2_R64_genomic.fna \
-    --input fast5s.al.demo/ \
+    --genome chr20_demo.fa \
+    --input fast5_chr20.tar.gz \
     --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
 ```
 
@@ -99,8 +108,8 @@ singularity pull docker://nipengcsu/longmethyl:0.2
 nextflow run ~/tools/longmethyl -profile singularity \
     --singularity_name longmethyl_0.2.sif \
     --dsname test \
-    --genome GCF_000146045.2_R64_genomic.fna \
-    --input fast5s.al.demo/ \
+    --genome chr20_demo.fa \
+    --input fast5_chr20.tar.gz \
     --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
 ```
 
@@ -123,8 +132,8 @@ conda activate nextflow
 # run longmethyl using cpu
 nextflow run ~/tools/longmethyl -profile docker \
     --dsname test \
-    --genome GCF_000146045.2_R64_genomic.fna \
-    --input fast5s.al.demo/ \
+    --genome chr20_demo.fa \
+    --input fast5_chr20.tar.gz \
     --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
 ```
 Currently longmethyl __CANNOT__ run with docker on a GPU machine.
@@ -133,8 +142,8 @@ Currently longmethyl __CANNOT__ run with docker on a GPU machine.
 # TODO: run longmethyl using GPU, set CUDA_VISIBLE_DEVICES and --gpu
 CUDA_VISIBLE_DEVICES=0 nextflow run ~/tools/longmethyl -profile docker --gpu true \
     --dsname test \
-    --genome GCF_000146045.2_R64_genomic.fna \
-    --input fast5s.al.demo/ \
+    --genome chr20_demo.fa \
+    --input fast5_chr20.tar.gz \
     --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
 ```
 
@@ -205,27 +214,41 @@ conda activate nextflow
 nextflow run ~/tools/longmethyl -profile conda \
     --conda_name /home/nipeng/tools/miniconda3/envs/longmethyl \
     --dsname test \
-    --genome GCF_000146045.2_R64_genomic.fna \
-    --input fast5s.al.demo/ \
+    --genome chr20_demo.fa \
+    --input fast5_chr20.tar.gz \
     --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
 # or, run longmethyl using GPU, set CUDA_VISIBLE_DEVICES
 CUDA_VISIBLE_DEVICES=0 nextflow run ~/tools/longmethyl -profile conda \
     --conda_name /home/nipeng/tools/miniconda3/envs/longmethyl \
     --dsname test \
-    --genome GCF_000146045.2_R64_genomic.fna \
-    --input fast5s.al.demo/ \
+    --genome chr20_demo.fa \
+    --input fast5_chr20.tar.gz \
     --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
 ```
 
 
-### Option 4. Resume a run
+### Extra 1. Run longmethyl and the benchmark process
+If you want benchmark the ONT 5mCpG calling pipeline with something like BS-seq, set `--eval_methcall` as `true` and provide BS-seq results in bedmethyl format using `--bs_bedmethyl`:
+
+```shell
+nextflow run ~/tools/longmethyl -profile singularity \
+    --dsname test \
+    --genome chr20_demo.fa \
+    --input fast5_chr20.tar.gz \
+    --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz \
+    --eval_methcall true \
+    --bs_bedmethyl hg002_bsseq_chr20_demo.bed
+```
+
+
+### Extra 2. Resume a run
 Try `-resume` to re-run a failed job to save time:
 
 ```shell
 nextflow run ~/tools/longmethyl -profile singularity \
     --dsname test \
-    --genome GCF_000146045.2_R64_genomic.fna \
-    --input fast5s.al.demo/ \
+    --genome chr20_demo.fa \
+    --input fast5_chr20.tar.gz \
     --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz \
     -resume
 ```
@@ -246,12 +269,12 @@ developement: [nextflow_develop.md](docs/nextflow_develop.md)
 - ~~test with gpu (with docker, run with gpu and cpu cannot succeed in a single container, cause of guppy)~~
 - how to set a default deepsignal model 
 - ~~result_summary\_statistics/for visualization?~~
-- add test demo, including benchmark and evaluation
+- ~~add test demo, including benchmark and evaluation~~
 - ~~test a 20x hg002 dataset~~
 - add deepsignal2
 - add multi_to\_single step
 - ~~vbz issue~~
 - ~~update deepsignal?~~
 - ~~try filelist/multi_inputs, modify code to enable running in parallel; learn more; how to enable parallel and aviod copying files many times at the same time~~
-- Does nextflow support cross-processes parallel (when processes have relationships in a DAG: like untar->basecall)?
+- ~~Does nextflow support cross-processes parallel (when processes have relationships in a DAG: like untar->basecall)? (maybe no)~~
 - add visualization (Rmarkdown/html?)
