@@ -42,7 +42,7 @@ sudo yum install graphviz
 
 ## Demo data
 Check [longmethyl/demo](/demo) for demo data:
-  - _fast5_chr20.tar.gz_: 60 HG002 fast5s which aligns to human genome chr20:10000000-10100000.
+  - _fast5_chr20.tar.gz_: 60 HG002 fast5s which align to human genome chr20:10000000-10100000.
   - _chr20_demo.fa_: reference sequence of human chr20:10000000-10100000.
   - _hg002_bsseq_chr20_demo.bed_: HG002 BS-seq results of region chr20:10000000-10100000.
 
