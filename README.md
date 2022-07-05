@@ -32,7 +32,9 @@ conda install -c conda-forge -c bioconda nextflow
 git clone https://github.com/PengNi/longmethyl.git
 ```
 
-  - (4) [optional] Install graphviz.
+  - (4) Install [Docker](https://docs.docker.com/engine/install/) or [Singularity](https://docs.sylabs.io/guides/3.0/user-guide/) if needed.
+
+  - (5) [optional] Install graphviz.
 
 ```sh
 sudo apt install graphviz
