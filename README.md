@@ -37,9 +37,7 @@ git clone https://github.com/PengNi/longmethyl.git
   - (5) [optional] Install graphviz.
 
 ```sh
-sudo apt install graphviz
-# or
-sudo yum install graphviz
+conda install -c conda-forge graphviz
 ```
 
 ## Demo data
@@ -280,3 +278,4 @@ developement: [nextflow_develop.md](docs/nextflow_develop.md)
 - ~~try filelist/multi_inputs, modify code to enable running in parallel; learn more; how to enable parallel and aviod copying files many times at the same time~~
 - ~~Does nextflow support cross-processes parallel (when processes have relationships in a DAG: like untar->basecall)? (maybe no)~~
 - add visualization (Rmarkdown/html?)
+- freq.bed to bedgraph/wig for visualization?
