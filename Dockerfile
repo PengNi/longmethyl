@@ -18,10 +18,11 @@ ARG DNAME="longmethyl"
 # ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:${CUDA_HOME}/compat/:${CUDA_HOME}/lib64/
 
 # Guppy version
-ARG GUPPY_VERSION=4.2.2  # 4.2.2, lastest version for cuda-10. However, maybe the guppy version is 
-                         # not associated with the cuda in docker - it is associated with the 
-                         # cuda/driver in the host machine?
-ARG BUILD_PACKAGES="wget apt-transport-https procps git curl"
+# 4.2.2, lastest version for cuda-10. However, maybe the guppy version is
+# not associated with the cuda in docker - it is associated with the
+# cuda/driver in the host machine?
+ARG GUPPY_VERSION=4.2.2
+ARG BUILD_PACKAGES="wget apt-transport-https procps git curl git-lfs"
 ARG DEBIAN_FRONTEND="noninteractive"
 
 # Install guppy-gpu version, ref: https://github.com/GenomicParisCentre/dockerfiles
@@ -83,7 +84,7 @@ RUN cd /tmp && \
     rm *tar.gz
 ENV HDF5_PLUGIN_PATH /opt/ont-vbz-hdf-plugin-${VBZ_VERSION}-Linux/usr/local/hdf5/lib/plugin
 
-#Install miniconda
+# Install miniconda
 RUN wget -q https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O Miniconda.sh && \
     /bin/bash Miniconda.sh -b -p /opt/conda && \
     rm Miniconda.sh
@@ -98,6 +99,11 @@ RUN conda env create --name ${DNAME} --file=environment.yml && conda clean -a
 # Make RUN commands use the new environment
 # naem need to be the same with the above ${DNAME}
 SHELL ["conda", "run", "-n", "longmethyl", "/bin/bash", "-c"]
+
+# download deepsignal model
+RUN mkdir -p /opt/models/deepsignal && \
+    cd /opt/models/deepsignal && \
+    wget -q https://github.com/PengNi/basemods-models/raw/master/deepsignal/model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7%2B.tar.gz
 
 # Set env path into PATH
 ENV PATH /opt/conda/envs/${DNAME}/bin:$PATH
