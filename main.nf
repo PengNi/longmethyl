@@ -199,7 +199,9 @@ process EnvCheck {
 
     ## Untar and prepare deepsignal model
     if [ ${params.runDeepSignal} == true ]; then
-        if [ ${deepsignalDir} == *.tar.gz ] ; then
+        if [ ${deepsignalDir} == null2 ] ; then
+            cp -a null2 ${params.DEEPSIGNAL_MODEL_DIR}
+        elif [ ${deepsignalDir} == *.tar.gz ] ; then
             ## Get DeepSignal Model online
             tar -xzf ${deepsignalDir}
         elif [[ ${deepsignalDir} != ${params.DEEPSIGNAL_MODEL_DIR} && -d ${deepsignalDir} ]] ; then
@@ -207,7 +209,7 @@ process EnvCheck {
             cp -a ${deepsignalDir}  ${params.DEEPSIGNAL_MODEL_DIR}
         fi
         ## Check DeepSignal model
-        ls -lh ${params.DEEPSIGNAL_MODEL_DIR}/
+        ls -lh ${params.DEEPSIGNAL_MODEL_DIR}
     fi
 
     if [[ ${params.runBasecall} == true || ${params.runDeepSignal} == true ]]; then
@@ -582,11 +584,17 @@ process DeepSignal {
         commandType='gpu'
     fi
 
+    if [[ -d ${params.DEEPSIGNAL_DEFAULT_MODEL_DIR} ]] ; then
+        model_file="${params.DEEPSIGNAL_DEFAULT_MODEL_DIR}/${params.DEEPSIGNAL_MODEL}"
+    else
+        model_file="\${DeepSignalModelBaseDir}/${params.DEEPSIGNAL_MODEL_DIR}/${params.DEEPSIGNAL_MODEL}"
+    fi
+
     if [[ \${commandType} == "cpu" ]]; then
         ## CPU version command
         CUDA_VISIBLE_DEVICES=-1 python utils/memusg deepsignal call_mods \
             --input_path ${indir} \
-            --model_path "\${DeepSignalModelBaseDir}/${params.DEEPSIGNAL_MODEL_DIR}/${params.DEEPSIGNAL_MODEL}" \
+            --model_path \${model_file} \
             --result_file \${outFile} \
             --corrected_group ${params.ResquiggleCorrectedGroup} \
             --nproc $cores \
@@ -595,7 +603,7 @@ process DeepSignal {
         ## GPU version command
         python utils/memusg deepsignal call_mods \
             --input_path ${indir} \
-            --model_path "\${DeepSignalModelBaseDir}/${params.DEEPSIGNAL_MODEL_DIR}/${params.DEEPSIGNAL_MODEL}" \
+            --model_path \${model_file} \
             --result_file \${outFile} \
             --corrected_group ${params.ResquiggleCorrectedGroup} \
             --nproc $cores \
@@ -773,16 +781,21 @@ workflow {
 
     genome_ch = Channel.fromPath(genome_path, type: 'any', checkIfExists: true)
 
-    if (! params.runDeepSignal) {
+    if (! params.runDeepSignal ) {
         // use null placeholder
         // deepsignalDir = Channel.fromPath("${projectDir}/utils/null2", type: 'any', checkIfExists: true)
         deepsignalDir = Channel.value("${projectDir}/utils/null2")
     }
     else {
+        if ( params.deepsignalDir == params.DEEPSIGNAL_DEFAULT_MODEL_DIR ) {
+            deepsignalDir = Channel.value("${projectDir}/utils/null2")
+        }
         // User provide the dir
-        if ( !file(params.deepsignalDir.toString()).exists() )
+        else if ( !file(params.deepsignalDir.toString()).exists() ) {
             exit 1, "deepsignalDir does not exist, check params: --deepsignalDir ${params.deepsignalDir}"
-        deepsignalDir = Channel.fromPath(params.deepsignalDir, type: 'any', checkIfExists: true)
+        } else {
+            deepsignalDir = Channel.fromPath(params.deepsignalDir, type: 'any', checkIfExists: true)
+        }
     }
 
     EnvCheck(ch_utils, deepsignalDir, genome_ch)

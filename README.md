@@ -46,7 +46,7 @@ Check [longmethyl/demo](/demo) for demo data:
   - _chr20_demo.fa_: reference sequence of human chr20:10000000-10100000.
   - _hg002_bsseq_chr20_demo.bed_: HG002 BS-seq results of region chr20:10000000-10100000.
 
-Check also [google drive](https://drive.google.com/open?id=1zkK8Q1gyfviWWnXUBMcIwEDw3SocJg7P) to get deepsignal CpG model-_model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz_. 
+If you are using Conda to run longmethyl, check also [google drive](https://drive.google.com/open?id=1zkK8Q1gyfviWWnXUBMcIwEDw3SocJg7P) to get deepsignal CpG model-_model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz_.
 
 ## Usage
 
@@ -62,14 +62,12 @@ conda activate nextflow
 nextflow run ~/tools/longmethyl -profile singularity \
     --dsname test \
     --genome chr20_demo.fa \
-    --input fast5_chr20.tar.gz \
-    --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
+    --input fast5_chr20.tar.gz
 # or, run longmethyl using GPU, set CUDA_VISIBLE_DEVICES
 CUDA_VISIBLE_DEVICES=0 nextflow run ~/tools/longmethyl -profile singularity \
     --dsname test \
     --genome chr20_demo.fa \
-    --input fast5_chr20.tar.gz \
-    --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
+    --input fast5_chr20.tar.gz
 ```
 
 The downloaded `.img` file can be used then, without being downloaded again:
@@ -80,37 +78,33 @@ The downloaded `.img` file can be used then, without being downloaded again:
 nextflow run ~/tools/longmethyl -profile singularity \
     --dsname test \
     --genome chr20_demo.fa \
-    --input fast5_chr20.tar.gz \
-    --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
+    --input fast5_chr20.tar.gz
 # or
 nextflow run ~/tools/longmethyl -profile singularity \
     --singularity_cache local_singularity_cache \
     --dsname test \
     --genome chr20_demo.fa \
-    --input fast5_chr20.tar.gz \
-    --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
+    --input fast5_chr20.tar.gz
 # or
 nextflow run ~/tools/longmethyl -profile singularity \
-    --singularity_name local_singularity_cache/nipengcsu-longmethyl-0.2.img \
+    --singularity_name local_singularity_cache/nipengcsu-longmethyl-0.3.img \
     --dsname test \
     --genome chr20_demo.fa \
-    --input fast5_chr20.tar.gz \
-    --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
+    --input fast5_chr20.tar.gz
 ```
 
 The singularity image can be also pulled before running the cmd. The pulled `.sif` file is only needed to be downloaded once.
 
 ```sh
 # pull singularity image (once for all). There will be a .sif file. 
-singularity pull docker://nipengcsu/longmethyl:0.2
+singularity pull docker://nipengcsu/longmethyl:0.3
 
 # run longmethyl
 nextflow run ~/tools/longmethyl -profile singularity \
-    --singularity_name longmethyl_0.2.sif \
+    --singularity_name longmethyl_0.3.sif \
     --dsname test \
     --genome chr20_demo.fa \
-    --input fast5_chr20.tar.gz \
-    --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
+    --input fast5_chr20.tar.gz
 ```
 
 ### Option 2. Run with docker
@@ -120,7 +114,7 @@ nextflow run ~/tools/longmethyl -profile singularity \
 It is better to pull docker image before running pipeline the first time, cause this may be time-consuming and there may be network issues. However, this step is not necessary, the image will be pulled automatically when running the pipeline the first time.
 
 ```sh
-docker pull nipengcsu/longmethyl:0.2
+docker pull nipengcsu/longmethyl:0.3
 ```
 
   - (2) Run longmethyl using `-profile docker`.
@@ -133,8 +127,7 @@ conda activate nextflow
 nextflow run ~/tools/longmethyl -profile docker \
     --dsname test \
     --genome chr20_demo.fa \
-    --input fast5_chr20.tar.gz \
-    --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
+    --input fast5_chr20.tar.gz
 ```
 Currently longmethyl __CANNOT__ run with docker on a GPU machine.
 
@@ -143,8 +136,7 @@ Currently longmethyl __CANNOT__ run with docker on a GPU machine.
 CUDA_VISIBLE_DEVICES=0 nextflow run ~/tools/longmethyl -profile docker --gpu true \
     --dsname test \
     --genome chr20_demo.fa \
-    --input fast5_chr20.tar.gz \
-    --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
+    --input fast5_chr20.tar.gz
 ```
 
 __Related issues__:
@@ -204,7 +196,9 @@ conda env create -f longmethyl/environment-cpu.yml
 
   - (2) Install Guppy, since Guppy is not open-sourced, from [ONT community](https://nanoporetech.com/community) (once for all).
 
-  - (3) Run longmethyl using `-profile conda` and the longmethyl environment.
+  - (3) Download the pre-trained model of deepsignal for calling mods [check deepsignal CpG model-_model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz_ in [google drive](https://drive.google.com/open?id=1zkK8Q1gyfviWWnXUBMcIwEDw3SocJg7P)].
+
+  - (4) Run longmethyl using `-profile conda` and the longmethyl environment.
 
 ```sh
 # activate nextflow environment
@@ -235,7 +229,6 @@ nextflow run ~/tools/longmethyl -profile singularity \
     --dsname test \
     --genome chr20_demo.fa \
     --input fast5_chr20.tar.gz \
-    --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz \
     --eval_methcall true \
     --bs_bedmethyl hg002_bsseq_chr20_demo.bed
 ```
@@ -249,7 +242,6 @@ nextflow run ~/tools/longmethyl -profile singularity \
     --dsname test \
     --genome chr20_demo.fa \
     --input fast5_chr20.tar.gz \
-    --deepsignalDir model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz \
     -resume
 ```
 
@@ -267,7 +259,7 @@ developement: [nextflow_develop.md](docs/nextflow_develop.md)
 - ~~cpu settings (do not use task.cpus for all process)~~
 - clean work dir
 - ~~test with gpu (with docker, run with gpu and cpu cannot succeed in a single container, cause of guppy)~~
-- how to set a default deepsignal model 
+- ~~how to set a default deepsignal model~~ 
 - ~~result_summary\_statistics/for visualization?~~
 - ~~add test demo, including benchmark and evaluation~~
 - ~~test a 20x hg002 dataset~~

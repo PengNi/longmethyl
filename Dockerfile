@@ -103,7 +103,9 @@ SHELL ["conda", "run", "-n", "longmethyl", "/bin/bash", "-c"]
 # download deepsignal model
 RUN mkdir -p /opt/models/deepsignal && \
     cd /opt/models/deepsignal && \
-    wget -q https://github.com/PengNi/basemods-models/raw/master/deepsignal/model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7%2B.tar.gz
+    wget -q https://github.com/PengNi/basemods-models/raw/master/deepsignal/model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7%2B.tar.gz && \
+    tar zxvf model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz && \
+    rm model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+.tar.gz
 
 # Set env path into PATH
 ENV PATH /opt/conda/envs/${DNAME}/bin:$PATH

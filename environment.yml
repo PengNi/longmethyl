@@ -3,18 +3,19 @@ channels:
   - bioconda
   - conda-forge
 dependencies:
-  - python>=3.6
+  - python=3.7.12
   - pip
   - scipy
-  - numpy
-  - pandas
+  - numpy>=1.19.2
   - minimap2>=2.23
   - parallel=20170422
   - samtools>=1.12
   - statsmodels>=0.12.2
   - h5py=2.8
-  - scikit-learn
   - ont-tombo=1.5.1
+  - pandas
+  - scikit-learn
   - pip:
     - deepsignal==0.2.0
     - tensorflow-gpu==1.13.1  # cuda10.0
+    - protobuf<=3.20.1
