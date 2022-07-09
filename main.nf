@@ -969,7 +969,7 @@ workflow {
         }
         comb_deepsignal2 = DeepSignal2Freq(DeepSignal2.out.deepsignal_out.collect(), ch_utils, ch_src)
         if (params.eval_methcall) {
-            
+
         }
     }
 
