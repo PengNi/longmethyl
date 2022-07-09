@@ -584,7 +584,7 @@ process DeepSignal {
         commandType='gpu'
     fi
 
-    if [[ -d ${params.DEEPSIGNAL_DEFAULT_MODEL_DIR} ]] ; then
+    if [[ "${params.deepsignalDir}" == "${params.DEEPSIGNAL_DEFAULT_MODEL_DIR}" ]] ; then
         model_file="${params.DEEPSIGNAL_DEFAULT_MODEL_DIR}/${params.DEEPSIGNAL_MODEL}"
     else
         model_file="\${DeepSignalModelBaseDir}/${params.DEEPSIGNAL_MODEL_DIR}/${params.DEEPSIGNAL_MODEL}"
@@ -770,6 +770,128 @@ process DeepSignalEval {
 }
 
 
+// DeepSignal runs on resquiggled subfolders named 'M1', ..., 'M10', etc.
+process DeepSignal2 {
+    tag "${indir}"
+
+    label 'process_deepsignal'
+
+    publishDir "${params.outdir}/${params.dsname}_intermediate/deepsignal2",
+        mode: "copy",
+        enabled: params.outputIntermediate
+
+    input:
+    path indir
+    each path(deepsignal_model_dir)
+    path ch_utils
+
+    output:
+    path "${params.dsname}_deepsignal2_batch_${indir.baseName}.*.gz",    emit: deepsignal_out
+
+    when:
+    params.runDeepSignal2
+
+    script:
+    cores = task.cpus
+    """
+    DeepSignalModelBaseDir="."
+    ### commandType='cpu'
+    outFile="${params.dsname}_deepsignal2_batch_${indir.baseName}.tsv"
+
+    if [[ "\${CUDA_VISIBLE_DEVICES:-}" == "" || "\${CUDA_VISIBLE_DEVICES:-}" == "-1" ]] ; then
+        echo "Detect no GPU, using CPU commandType"
+        commandType='cpu'
+    else
+        echo "Detect GPU, using GPU commandType"
+        commandType='gpu'
+    fi
+
+    if [[ "${params.deepsignalDir}" == "${params.DEEPSIGNAL_DEFAULT_MODEL_DIR}" ]] ; then
+        model_file="${params.DEEPSIGNAL_DEFAULT_MODEL_DIR}/${params.DEEPSIGNAL_MODEL}"
+    else
+        model_file="\${DeepSignalModelBaseDir}/${params.DEEPSIGNAL_MODEL_DIR}/${params.DEEPSIGNAL_MODEL}"
+    fi
+
+    if [[ \${commandType} == "cpu" ]]; then
+        ## CPU version command
+        CUDA_VISIBLE_DEVICES=-1 python utils/memusg deepsignal call_mods \
+            --input_path ${indir} \
+            --model_path \${model_file} \
+            --result_file \${outFile} \
+            --corrected_group ${params.ResquiggleCorrectedGroup} \
+            --nproc $cores \
+            --is_gpu no   &>> ${params.dsname}.${indir.baseName}.DeepSignal.run.log
+    elif [[ \${commandType} == "gpu" ]]; then
+        ## GPU version command
+        python utils/memusg deepsignal call_mods \
+            --input_path ${indir} \
+            --model_path \${model_file} \
+            --result_file \${outFile} \
+            --corrected_group ${params.ResquiggleCorrectedGroup} \
+            --nproc $cores \
+            --is_gpu yes  &>> ${params.dsname}.${indir.baseName}.DeepSignal.run.log
+    else
+        echo "### error value for commandType=\${commandType}"
+        exit 255
+    fi
+
+    gzip -f \${outFile}
+    echo "### DeepSignal methylation DONE"
+    """
+}
+
+
+// Combine DeepSignal runs' all results together
+process DeepSignal2Freq {
+    tag "${params.dsname}"
+
+    label 'process_medium'
+
+    publishDir "${params.outdir}/${params.dsname}-ds2",
+        mode: "copy",
+        pattern: "${params.dsname}_deepsignal2_per_read_combine.*.gz",
+        enabled: params.outputRaw
+
+    publishDir "${params.outdir}/${params.dsname}-ds2",
+        mode: "copy", pattern: "${params.dsname}_deepsignal2_sitemods_freq.bed.gz"
+
+    input:
+    path x
+    path ch_utils
+    path ch_src
+
+    output:
+    path "${params.dsname}_deepsignal2_per_read_combine.*.gz",   emit: deepsignal_combine_out
+    path "${params.dsname}_deepsignal2_sitemods_freq.bed.gz",   emit: site_unify
+
+    when:
+    x.size() >= 1 && params.runCallfreq
+
+    """
+    touch ${params.dsname}_deepsignal2_per_read_combine.tsv.gz
+    cat ${x} > ${params.dsname}_deepsignal2_per_read_combine.tsv.gz
+
+    if [[ ${params.deduplicate} == true ]] ; then
+        echo "### Deduplicate for read-level outputs"
+        ## sort order: Chr, Start, (End), ID, Strand
+        zcat ${params.dsname}_deepsignal2_per_read_combine.tsv.gz |\
+            sort -V -u -k1,1 -k2,2n -k5,5 -k3,3 |\
+            gzip -f > ${params.dsname}_deepsignal2_per_read_combine.sort.tsv.gz
+        rm ${params.dsname}_deepsignal2_per_read_combine.tsv.gz &&\
+            mv ${params.dsname}_deepsignal2_per_read_combine.sort.tsv.gz  \
+                ${params.dsname}_deepsignal2_per_read_combine.tsv.gz
+    fi
+
+    ## Unify format output
+    bash utils/call_freq_deepsignal.sh \
+        ${params.dsname} deepsignal2 \
+        ${params.dsname}_deepsignal2_per_read_combine.tsv.gz \
+        ${params.sort  ? true : false}
+    echo "### DeepSignal combine DONE"
+    """
+}
+
+
 /*
 ========================================================================================
     RUN ALL WORKFLOWS
@@ -801,7 +923,6 @@ workflow {
     EnvCheck(ch_utils, deepsignalDir, genome_ch)
 
     Untar(fast5_tar_ch, ch_utils)
-
     Basecall(Untar.out.untar)
 
     // Resquiggle running
@@ -826,10 +947,30 @@ workflow {
                        EnvCheck.out.deepsignal_model, ch_utils)
         }
         comb_deepsignal = DeepSignalFreq(DeepSignal.out.deepsignal_out.collect(), ch_utils, ch_src)
-        DeepSignalEval(comb_deepsignal.deepsignal_combine_out, 
-                       comb_deepsignal.site_unify, 
-                       bs_bedmethyl_file, 
-                       ch_utils, ch_src)
+        if (params.eval_methcall) {
+            DeepSignalEval(comb_deepsignal.deepsignal_combine_out,
+                           comb_deepsignal.site_unify,
+                           bs_bedmethyl_file,
+                           ch_utils, ch_src)
+        }
+    }
+    if (params.runDeepSignal2) {
+        if (params.runResquiggle){
+            DeepSignal2(Resquiggle.out.raw,
+                        EnvCheck.out.deepsignal_model, ch_utils)
+        }
+        else if (params.runBasecall) {
+            DeepSignal2(Basecall.out.raw,
+                        EnvCheck.out.deepsignal_model, ch_utils)
+        }
+        else {
+            DeepSignal2(Untar.out.untar,
+                        EnvCheck.out.deepsignal_model, ch_utils)
+        }
+        comb_deepsignal2 = DeepSignal2Freq(DeepSignal2.out.deepsignal_out.collect(), ch_utils, ch_src)
+        if (params.eval_methcall) {
+            
+        }
     }
 
 }
